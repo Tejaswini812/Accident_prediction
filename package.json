@@ -9,8 +9,15 @@
     "preview": "vite preview",
     "server": "cd backend && npm start",
     "server:dev": "cd backend && npm run dev",
+    "server:prod": "cd backend && node production-server.js",
     "install:all": "npm install && cd backend && npm install",
-    "start": "concurrently \"npm run server\" \"npm run dev\""
+    "start": "concurrently \"npm run server\" \"npm run dev\"",
+    "start:prod": "npm run build && npm run server:prod",
+    "deploy": "npm run install:all && npm run build && pm2 start ecosystem.config.js --env production",
+    "restart": "pm2 restart startup-village-backend",
+    "stop": "pm2 stop startup-village-backend",
+    "logs": "pm2 logs startup-village-backend",
+    "status": "pm2 status"
   },
   "dependencies": {
     "axios": "^1.3.4",
