@@ -56,26 +56,26 @@ const EventsSection = () => {
       const response = await axios.get('/api/events')
       console.log('Events API response:', response.data)
       
-      if (response.data && response.data.events) {
-        console.log('Raw API events:', response.data.events)
+      if (response.data && response.data.length > 0) {
+        console.log('Raw API events:', response.data)
         
         // Transform API events to match the expected format
-        const apiEvents = response.data.events.map(event => {
+        const apiEvents = response.data.map(event => {
           console.log('Processing event:', event)
-          console.log('Event image field:', event.image)
-          console.log('Event image type:', typeof event.image)
-          console.log('Event image value:', event.image)
+          console.log('Event image field:', event.images)
+          console.log('Event image type:', typeof event.images)
+          console.log('Event image value:', event.images)
           
           const transformedEvent = {
             id: event._id || event.id,
-            title: event.name,
-            location: event.location,
-            date: new Date(event.date).toLocaleDateString(),
-            time: new Date(event.date).toLocaleTimeString(),
-            image: event.image ? `http://localhost:5000${event.image}` : "https://img.freepik.com/free-vector/music-event-poster-template-with-abstract-shapes_1361-1316.jpg?semt=ais_hybrid&w=740", // Use uploaded image or default
+            title: event.title,
+            location: event.location?.venue || event.location || 'Location TBD',
+            date: new Date(event.dateTime?.start || event.date).toLocaleDateString(),
+            time: event.time || new Date(event.dateTime?.start || event.date).toLocaleTimeString(),
+            image: event.images?.[0] ? `http://localhost:5000/${event.images[0]}` : "https://img.freepik.com/free-vector/music-event-poster-template-with-abstract-shapes_1361-1316.jpg?semt=ais_hybrid&w=740",
             description: event.description,
             price: event.price,
-            category: event.category
+            category: event.category || event.eventType
           }
           console.log('Transformed event:', transformedEvent)
           console.log('Final image URL:', transformedEvent.image)
@@ -142,7 +142,7 @@ const EventsSection = () => {
     <div className="events-section">
       <div className="events-header">
         <div className="events-tabs">
-          <span className="events-tab active">EVENTS ({events.length})</span>
+          <span className="events-tab active">EVENTS</span>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <a href="#" className="view-all-link">View all →</a>
@@ -160,7 +160,7 @@ const EventsSection = () => {
                   alt={event.title}
                   className="event-img"
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/400x300/28a745/ffffff?text=Event+Image'
+                    e.target.src = 'https://dummyimage.com/400x300/28a745/ffffff&text=Event+Image'
                   }}
                 />
               </div>
@@ -168,6 +168,7 @@ const EventsSection = () => {
                 <span className="event-date">{event.date}</span>
                 <span className="event-time">{event.time}</span>
                 <div className="event-location">{event.location}</div>
+                <button className="event-view-details-btn">View Details</button>
               </div>
             </div>
           ))}

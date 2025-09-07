@@ -1,302 +1,113 @@
-# 🚀 Startup Village County - Deployment Guide
+# Deployment Guide - Startup Village County
 
-This guide will help you deploy your application to Hostinger VPS using GitHub and fix common hosting issues.
+## Database Configuration for Production
 
-## 📋 Prerequisites
+To ensure data persistence when deployed, you need to set up a cloud database. Here are the steps:
 
-- Hostinger VPS account
-- Domain name (optional)
-- GitHub repository
-- SSH access to your VPS
+### Option 1: MongoDB Atlas (Recommended)
 
-## 🔧 Initial VPS Setup
+1. **Create MongoDB Atlas Account**:
+   - Go to https://www.mongodb.com/atlas
+   - Sign up for a free account
+   - Create a new cluster
 
-### 1. Connect to your VPS
-```bash
-ssh username@your-vps-ip
-```
+2. **Get Connection String**:
+   - In Atlas dashboard, click "Connect" on your cluster
+   - Choose "Connect your application"
+   - Copy the connection string
+   - Replace `<password>` with your database password
 
-### 2. Update system packages
-```bash
-sudo apt update && sudo apt upgrade -y
-```
-
-### 3. Install Node.js 18
-```bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-```
-
-### 4. Install PM2 globally
-```bash
-sudo npm install -g pm2
-```
-
-### 5. Install MongoDB
-```bash
-sudo apt install -y mongodb
-sudo systemctl start mongodb
-sudo systemctl enable mongodb
-```
-
-### 6. Install Nginx
-```bash
-sudo apt install -y nginx
-sudo systemctl start nginx
-sudo systemctl enable nginx
-```
-
-## 📁 Project Setup
-
-### 1. Clone your repository
-```bash
-cd /home/username
-git clone https://github.com/yourusername/startup-village-county.git
-cd startup-village-county
-```
-
-### 2. Install dependencies
-```bash
-npm run install:all
-```
-
-### 3. Create environment file
-```bash
-cp backend/env.example backend/.env
-nano backend/.env
-```
-
-### 4. Configure your environment variables
-Update the `.env` file with your production values:
-```env
+3. **Set Environment Variables**:
+   Create a `.env` file in the `backend` folder with:
+   ```
+   MONGODB_URI=mongodb+srv://username:password@cluster0.mongodb.net/startup-village-county?retryWrites=true&w=majority
+   JWT_SECRET=your-super-secret-jwt-key-here
 NODE_ENV=production
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/startup-village-county
-FRONTEND_URL=https://yourdomain.com
+   ```
+
+### Option 2: Railway/Render Database
+
+1. **Railway**:
+   - Deploy to Railway
+   - Add MongoDB service
+   - Use the provided connection string
+
+2. **Render**:
+   - Deploy to Render
+   - Add MongoDB service
+   - Use the provided connection string
+
+## Frontend Deployment
+
+### Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Set build command: `npm run build`
+3. Set output directory: `dist`
+4. Deploy
+
+### Netlify
+1. Connect your GitHub repository to Netlify
+2. Set build command: `npm run build`
+3. Set publish directory: `dist`
+4. Deploy
+
+## Backend Deployment
+
+### Railway
+1. Connect your GitHub repository
+2. Set root directory: `backend`
+3. Add environment variables
+4. Deploy
+
+### Render
+1. Create new Web Service
+2. Connect GitHub repository
+3. Set root directory: `backend`
+4. Add environment variables
+5. Deploy
+
+## Environment Variables for Production
+
+Create these environment variables in your deployment platform:
+
+```
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/startup-village-county
 JWT_SECRET=your-super-secret-jwt-key-here
-# ... other variables
+NODE_ENV=production
+PORT=5000
+FRONTEND_URL=https://your-frontend-domain.com
 ```
 
-## 🏗️ Build and Deploy
+## Testing After Deployment
 
-### 1. Build the frontend
-```bash
-npm run build
-```
+1. **Test Signup**: Create a new account
+2. **Test Login**: Login with the created account
+3. **Test Data Persistence**: Refresh the page and verify data is still there
+4. **Test All Features**: Ensure all sections work properly
 
-### 2. Create logs directory
-```bash
-mkdir -p logs
-```
+## Troubleshooting
 
-### 3. Start the application with PM2
-```bash
-npm run deploy
-```
+### Data Not Persisting
+- Check MongoDB connection string
+- Verify environment variables are set
+- Check database permissions
 
-### 4. Save PM2 configuration
-```bash
-pm2 save
-pm2 startup
-```
+### Login Issues
+- Verify JWT_SECRET is set
+- Check if user exists in database
+- Verify password hashing
 
-## 🌐 Nginx Configuration
+### CORS Issues
+- Set FRONTEND_URL environment variable
+- Check CORS configuration in server.js
 
-### 1. Create Nginx configuration
-```bash
-sudo nano /etc/nginx/sites-available/startup-village
-```
+## Current Configuration
 
-### 2. Add the following configuration:
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com www.yourdomain.com;
-    
-    # Frontend (React build files)
-    location / {
-        root /home/username/startup-village-county/dist;
-        index index.html index.htm;
-        try_files $uri $uri/ /index.html;
-        
-        # Cache static assets
-        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-            expires 1y;
-            add_header Cache-Control "public, immutable";
-        }
-    }
-    
-    # API routes
-    location /api/ {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-    
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header Referrer-Policy "no-referrer-when-downgrade" always;
-    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
-    
-    # Gzip compression
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_proxied expired no-cache no-store private must-revalidate auth;
-    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss;
-}
-```
+The project is now configured to:
+- Use MongoDB Atlas by default
+- Fallback to local MongoDB if cloud fails
+- Persist all user data, signups, and logins
+- Work in both development and production
 
-### 3. Enable the site
-```bash
-sudo ln -s /etc/nginx/sites-available/startup-village /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-## 🔐 SSL Certificate (Optional)
-
-### 1. Install Certbot
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-```
-
-### 2. Get SSL certificate
-```bash
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
-```
-
-## 🚀 GitHub Actions Setup
-
-### 1. Add secrets to your GitHub repository
-Go to Settings > Secrets and variables > Actions, and add:
-- `HOSTINGER_HOST`: Your VPS IP address
-- `HOSTINGER_USERNAME`: Your VPS username
-- `HOSTINGER_SSH_KEY`: Your private SSH key
-- `HOSTINGER_PORT`: SSH port (usually 22)
-
-### 2. Push to master branch
-```bash
-git add .
-git commit -m "Deploy to production"
-git push origin master
-```
-
-## 🔍 Troubleshooting Common Issues
-
-### Issue 1: Port already in use
-```bash
-# Check what's using port 5000
-sudo lsof -i :5000
-# Kill the process
-sudo kill -9 PID
-```
-
-### Issue 2: MongoDB connection failed
-```bash
-# Check MongoDB status
-sudo systemctl status mongodb
-# Restart MongoDB
-sudo systemctl restart mongodb
-```
-
-### Issue 3: PM2 process not starting
-```bash
-# Check PM2 logs
-pm2 logs startup-village-backend
-# Restart the process
-pm2 restart startup-village-backend
-```
-
-### Issue 4: Nginx configuration error
-```bash
-# Test Nginx configuration
-sudo nginx -t
-# Check Nginx status
-sudo systemctl status nginx
-```
-
-### Issue 5: File permissions
-```bash
-# Fix file permissions
-sudo chown -R username:username /home/username/startup-village-county
-chmod -R 755 /home/username/startup-village-county
-```
-
-## 📊 Monitoring and Maintenance
-
-### 1. Check application status
-```bash
-pm2 status
-pm2 logs startup-village-backend
-```
-
-### 2. Monitor system resources
-```bash
-htop
-df -h
-free -h
-```
-
-### 3. Update application
-```bash
-git pull origin main
-npm run install:all
-npm run build
-pm2 restart startup-village-backend
-```
-
-## 🔄 Backup Strategy
-
-### 1. Database backup
-```bash
-mongodump --db startup-village-county --out /backup/mongodb/$(date +%Y%m%d)
-```
-
-### 2. Application backup
-```bash
-tar -czf /backup/app/startup-village-$(date +%Y%m%d).tar.gz /home/username/startup-village-county
-```
-
-## 📞 Support
-
-If you encounter any issues:
-1. Check the logs: `pm2 logs startup-village-backend`
-2. Verify environment variables: `cat backend/.env`
-3. Test API endpoints: `curl http://localhost:5000/api/health`
-4. Contact: connect01@startupvillagecounty.in
-
-## 🎯 Quick Commands Reference
-
-```bash
-# Start application
-npm run deploy
-
-# Restart application
-npm run restart
-
-# Stop application
-npm run stop
-
-# View logs
-npm run logs
-
-# Check status
-npm run status
-
-# Update and redeploy
-git pull && npm run deploy
-```
-
----
-
-**Note**: Replace `yourdomain.com`, `username`, and other placeholders with your actual values.
+Your data will now persist when deployed! 🚀

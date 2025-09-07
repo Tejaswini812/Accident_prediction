@@ -1,11 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const propertySchema = new mongoose.Schema({
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
   title: {
     type: String,
     required: true,
@@ -13,70 +8,51 @@ const propertySchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    enum: ['Villa', 'Apartment', 'Farmhouse', 'Penthouse', 'Townhouse', 'Land'],
-    required: true
-  },
-  location: {
-    address: {
-      type: String,
-      required: true
-    },
-    city: {
-      type: String,
-      required: true
-    },
-    state: {
-      type: String,
-      required: true
-    },
-    pincode: {
-      type: String,
-      required: true
-    },
-    coordinates: {
-      lat: Number,
-      lng: Number
-    }
+    required: true,
+    trim: true
   },
   price: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   },
-  area: {
-    type: Number, // in sqft
-    required: true
+  location: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  propertyType: {
+    type: String,
+    required: true,
+    enum: ['apartment', 'house', 'villa', 'studio', 'pg']
   },
   bedrooms: {
     type: Number,
-    default: 0
+    default: 0,
+    min: 0
   },
   bathrooms: {
     type: Number,
-    default: 0
+    default: 0,
+    min: 0
   },
-  amenities: [{
-    type: String
-  }],
-  images: [{
-    type: String, // File paths or URLs
-    required: true
-  }],
-  isAvailable: {
-    type: Boolean,
-    default: true
+  area: {
+    type: Number,
+    default: 0,
+    min: 0
   },
-  isApproved: {
-    type: Boolean,
-    default: false
+  amenities: {
+    type: String,
+    trim: true
   },
   contactInfo: {
-    phone: String,
-    email: String
+    type: String,
+    required: true,
+    trim: true
   },
+  images: [{
+    type: String
+  }],
   createdAt: {
     type: Date,
     default: Date.now
@@ -85,11 +61,12 @@ const propertySchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
+})
 
+// Update the updatedAt field before saving
 propertySchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+  this.updatedAt = Date.now()
+  next()
+})
 
-module.exports = mongoose.model('Property', propertySchema);
+module.exports = mongoose.model('Property', propertySchema)

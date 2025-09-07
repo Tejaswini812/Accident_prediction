@@ -112,7 +112,8 @@ router.post('/register', (req, res, next) => {
     if (!password || !password.trim()) missingFields.push('password');
     if (!governmentProofType || !governmentProofType.trim()) missingFields.push('governmentProofType');
     if (!governmentProofNumber || !governmentProofNumber.trim()) missingFields.push('governmentProofNumber');
-    if (!req.files?.document) missingFields.push('document');
+    // Document is optional for now
+    // if (!req.files?.document) missingFields.push('document');
 
     if (missingFields.length > 0) {
       console.log('❌ Missing required fields:', missingFields);
@@ -173,7 +174,7 @@ router.post('/register', (req, res, next) => {
       governmentProof: {
         type: governmentProofType,
         number: governmentProofNumber,
-        document: req.files && req.files.document ? req.files.document[0].path : null
+        document: req.files && req.files.document ? req.files.document[0].path : 'no-document-uploaded'
       }
     };
 
@@ -206,30 +207,49 @@ router.post('/register', (req, res, next) => {
       throw saveError;
     }
 
-    // Send welcome email to user
-    const userMailOptions = {
-      from: 'villagecounty2025@gmail.com',
-      to: email,
-      subject: 'Welcome to Startup Village County!',
-      html: `
-        <h2>Welcome to Startup Village County!</h2>
-        <p>Dear ${name},</p>
-        <p>Your registration has been completed successfully! Your account is now active and ready to use.</p>
-        <p>You can now:</p>
-        <ul>
-          <li>Host properties</li>
-          <li>Launch events</li>
-          <li>Access all platform features</li>
-        </ul>
-        <p>Thank you for choosing Startup Village County!</p>
-      `
-    };
+    // Send welcome email to user (optional - don't fail if email fails)
+    try {
+      const userMailOptions = {
+        from: 'villagecounty2025@gmail.com',
+        to: email,
+        subject: 'Welcome to Startup Village County!',
+        html: `
+          <h2>Welcome to Startup Village County!</h2>
+          <p>Dear ${name},</p>
+          <p>Your registration has been completed successfully! Your account is now active and ready to use.</p>
+          <p>You can now:</p>
+          <ul>
+            <li>Host properties</li>
+            <li>Launch events</li>
+            <li>Access all platform features</li>
+          </ul>
+          <p>Thank you for choosing Startup Village County!</p>
+        `
+      };
 
-    await transporter.sendMail(userMailOptions);
+      await transporter.sendMail(userMailOptions);
+      console.log('✅ Welcome email sent successfully');
+    } catch (emailError) {
+      console.log('⚠️ Email sending failed (non-critical):', emailError.message);
+      // Don't fail registration if email fails
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET || 'your-super-secret-jwt-key-here-change-this-in-production',
+      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+    );
 
     res.status(201).json({ 
       message: 'Registration successful! Your account is now active.',
-      userId: user._id 
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone
+      },
+      token
     });
 
   } catch (error) {
@@ -379,5 +399,28 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+// Verify token
+router.get('/verify', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key-here-change-this-in-production');
+    const user = await User.findById(decoded.userId).select('-password');
+    
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(401).json({ message: 'Invalid token' });
+  }
+});
 
 module.exports = router;

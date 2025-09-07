@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import apiClient from '../config/axios'
 
 const SignupForm = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -228,13 +228,13 @@ const SignupForm = ({ onClose, onSuccess }) => {
         console.log(key, value)
       }
 
-      const response = await axios.post('/api/auth/register', submitData, {
+      const response = await apiClient.post('/auth/register', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
 
-      onSuccess(response.data.message)
+      onSuccess(response.data.user, response.data.token)
       onClose()
     } catch (error) {
       console.error('Signup error:', error)

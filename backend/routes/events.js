@@ -1,288 +1,167 @@
-const express = require('express');
-const Event = require('../models/Event');
-const User = require('../models/User');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const express = require('express')
+const multer = require('multer')
+const path = require('path')
+const mongoose = require('mongoose')
+const Event = require('../models/Event')
+const router = express.Router()
 
-const router = express.Router();
-
-// Configure multer for event images
+// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = 'uploads/events';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
+    cb(null, 'uploads/events/')
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname))
   }
-});
+})
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
+      cb(null, true)
     } else {
-      cb(new Error('Only image files are allowed'), false);
+      cb(new Error('Only image files are allowed'), false)
     }
   }
-});
-
-// Middleware to authenticate JWT token
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
-  }
-
-  const jwt = require('jsonwebtoken');
-  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid or expired token' });
-    }
-    req.user = user;
-    next();
-  });
-}
+})
 
 // Create new event
-router.post('/', authenticateToken, upload.array('images', 10), async (req, res) => {
+router.post('/', upload.array('images', 10), async (req, res) => {
   try {
+    console.log('=== EVENT CREATION REQUEST ===')
+    console.log('Request body:', req.body)
+    console.log('Request files:', req.files)
+    
     const {
       title,
       description,
-      category,
-      location,
-      dateTime,
       price,
+      location,
+      eventType,
+      date,
+      time,
+      duration,
       capacity,
-      contactInfo,
-      requirements
-    } = req.body;
+      organizer,
+      contactInfo
+    } = req.body
+
+    console.log('Extracted data:')
+    console.log('- title:', title)
+    console.log('- eventType:', eventType)
+    console.log('- date:', date)
+    console.log('- time:', time)
+
+    // Map eventType to category for the model
+    const category = eventType
+    console.log('- category (mapped):', category)
+
+    const imagePaths = req.files ? req.files.map(file => file.path.replace(/\\/g, '/')) : []
 
     const event = new Event({
-      organizer: req.user.userId,
       title,
       description,
-      category,
-      location: JSON.parse(location),
-      dateTime: JSON.parse(dateTime),
       price: parseFloat(price) || 0,
-      capacity: parseInt(capacity),
-      images: req.files ? req.files.map(file => file.path) : [],
+      category,
+      location: {
+        venue: location,
+        address: location,
+        city: location,
+        state: location
+      },
+      dateTime: {
+        start: new Date(date + ' ' + time),
+        end: new Date(new Date(date + ' ' + time).getTime() + (parseInt(duration) * 60 * 60 * 1000))
+      },
+      capacity: parseInt(capacity) || 100,
+      organizer: new mongoose.Types.ObjectId(), // Generate a new ObjectId for now
       contactInfo: contactInfo ? JSON.parse(contactInfo) : {},
-      requirements: requirements ? JSON.parse(requirements) : []
-    });
+      images: imagePaths
+    })
 
-    await event.save();
-
-    // Add event to user's events array
-    await User.findByIdAndUpdate(
-      req.user.userId,
-      { $push: { events: event._id } }
-    );
-
-    res.status(201).json({ message: 'Event created successfully', event });
+    await event.save()
+    res.status(201).json({ message: 'Event created successfully', event })
   } catch (error) {
-    console.error('Event creation error:', error);
-    res.status(500).json({ message: 'Event creation failed', error: error.message });
+    console.error('Error creating event:', error)
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    })
+    res.status(500).json({ 
+      error: 'Error creating event',
+      details: error.message 
+    })
   }
-});
+})
 
-// Get user's events
-router.get('/my-events', authenticateToken, async (req, res) => {
-  try {
-    const events = await Event.find({ organizer: req.user.userId })
-      .sort({ 'dateTime.start': -1 });
-
-    res.json(events);
-  } catch (error) {
-    console.error('Error fetching user events:', error);
-    res.status(500).json({ message: 'Failed to fetch events', error: error.message });
-  }
-});
-
-// Get all approved events (for public viewing)
+// Get all events
 router.get('/', async (req, res) => {
   try {
-    const { category, city, minPrice, maxPrice, date, page = 1, limit = 10 } = req.query;
-    
-    const filter = { isApproved: true, isActive: true };
-    
-    if (category) filter.category = category;
-    if (city) filter['location.city'] = new RegExp(city, 'i');
-    if (minPrice || maxPrice) {
-      filter.price = {};
-      if (minPrice) filter.price.$gte = parseFloat(minPrice);
-      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
-    }
-    if (date) {
-      const startDate = new Date(date);
-      const endDate = new Date(date);
-      endDate.setDate(endDate.getDate() + 1);
-      filter['dateTime.start'] = { $gte: startDate, $lt: endDate };
-    }
-
-    const events = await Event.find(filter)
-      .populate('organizer', 'name email phone')
-      .sort({ 'dateTime.start': 1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await Event.countDocuments(filter);
-
-    res.json({
-      events,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total
-    });
+    const events = await Event.find().sort({ createdAt: -1 })
+    res.json(events)
   } catch (error) {
-    console.error('Error fetching events:', error);
-    res.status(500).json({ message: 'Failed to fetch events', error: error.message });
+    console.error('Error fetching events:', error)
+    res.status(500).json({ error: 'Error fetching events' })
   }
-});
+})
 
-// Get single event
+// Get event by ID
 router.get('/:id', async (req, res) => {
   try {
     const event = await Event.findById(req.params.id)
-      .populate('organizer', 'name email phone');
-
     if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ error: 'Event not found' })
     }
-
-    res.json(event);
+    res.json(event)
   } catch (error) {
-    console.error('Error fetching event:', error);
-    res.status(500).json({ message: 'Failed to fetch event', error: error.message });
+    console.error('Error fetching event:', error)
+    res.status(500).json({ error: 'Error fetching event' })
   }
-});
+})
 
 // Update event
-router.put('/:id', authenticateToken, upload.array('images', 10), async (req, res) => {
+router.put('/:id', upload.array('images', 10), async (req, res) => {
   try {
-    const event = await Event.findOne({ 
-      _id: req.params.id, 
-      organizer: req.user.userId 
-    });
-
+    const event = await Event.findById(req.params.id)
     if (!event) {
-      return res.status(404).json({ message: 'Event not found or unauthorized' });
+      return res.status(404).json({ error: 'Event not found' })
     }
 
-    const updateData = { ...req.body };
-    
-    // Handle location update
-    if (updateData.location) {
-      updateData.location = JSON.parse(updateData.location);
-    }
-    
-    // Handle dateTime update
-    if (updateData.dateTime) {
-      updateData.dateTime = JSON.parse(updateData.dateTime);
-    }
-    
-    // Handle contact info update
-    if (updateData.contactInfo) {
-      updateData.contactInfo = JSON.parse(updateData.contactInfo);
-    }
-    
-    // Handle requirements update
-    if (updateData.requirements) {
-      updateData.requirements = JSON.parse(updateData.requirements);
-    }
-
-    // Handle new images
+    const updateData = { ...req.body }
     if (req.files && req.files.length > 0) {
-      updateData.images = [...event.images, ...req.files.map(file => file.path)];
+      updateData.images = [...event.images, ...req.files.map(file => file.path)]
     }
-
-    updateData.updatedAt = new Date();
 
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true }
-    );
+    )
 
-    res.json({ message: 'Event updated successfully', event: updatedEvent });
+    res.json({ message: 'Event updated successfully', event: updatedEvent })
   } catch (error) {
-    console.error('Event update error:', error);
-    res.status(500).json({ message: 'Event update failed', error: error.message });
+    console.error('Error updating event:', error)
+    res.status(500).json({ error: 'Error updating event' })
   }
-});
+})
 
 // Delete event
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
-    const event = await Event.findOne({ 
-      _id: req.params.id, 
-      organizer: req.user.userId 
-    });
-
+    const event = await Event.findByIdAndDelete(req.params.id)
     if (!event) {
-      return res.status(404).json({ message: 'Event not found or unauthorized' });
+      return res.status(404).json({ error: 'Event not found' })
     }
-
-    // Delete associated images
-    event.images.forEach(imagePath => {
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
-    });
-
-    await Event.findByIdAndDelete(req.params.id);
-
-    // Remove event from user's events array
-    await User.findByIdAndUpdate(
-      req.user.userId,
-      { $pull: { events: req.params.id } }
-    );
-
-    res.json({ message: 'Event deleted successfully' });
+    res.json({ message: 'Event deleted successfully' })
   } catch (error) {
-    console.error('Event deletion error:', error);
-    res.status(500).json({ message: 'Event deletion failed', error: error.message });
+    console.error('Error deleting event:', error)
+    res.status(500).json({ error: 'Error deleting event' })
   }
-});
+})
 
-// Book event (for users to book events)
-router.post('/:id/book', authenticateToken, async (req, res) => {
-  try {
-    const { tickets = 1 } = req.body;
-    
-    const event = await Event.findById(req.params.id);
-    
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
-    }
-
-    if (!event.isApproved || !event.isActive) {
-      return res.status(400).json({ message: 'Event is not available for booking' });
-    }
-
-    if (event.currentBookings + tickets > event.capacity) {
-      return res.status(400).json({ message: 'Not enough tickets available' });
-    }
-
-    event.currentBookings += tickets;
-    await event.save();
-
-    res.json({ message: 'Event booked successfully', event });
-  } catch (error) {
-    console.error('Event booking error:', error);
-    res.status(500).json({ message: 'Event booking failed', error: error.message });
-  }
-});
-
-module.exports = router;
+module.exports = router

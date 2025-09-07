@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import apiClient from '../config/axios'
 
 const LoginForm = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -42,13 +42,13 @@ const LoginForm = ({ onClose, onSuccess }) => {
 
     setLoading(true)
     try {
-      const response = await axios.post('/api/auth/login', formData)
+      const response = await apiClient.post('/auth/login', formData)
       
       // Store token and user data in localStorage
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
       
-      onSuccess(response.data.user)
+      onSuccess(response.data.user, response.data.token)
       onClose()
     } catch (error) {
       console.error('Login error:', error)

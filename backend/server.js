@@ -10,9 +10,16 @@ const path = require('path')
 const authRoutes = require('./routes/auth')
 const hotelRoutes = require('./routes/hotels')
 const propertyRoutes = require('./routes/properties')
+const landPropertyRoutes = require('./routes/landProperties')
+const productRoutes = require('./routes/products')
 const accessoryRoutes = require('./routes/accessories')
 const eventRoutes = require('./routes/events')
 const adminRoutes = require('./routes/admin')
+const carsRoutes = require('./routes/cars')
+const packagesRoutes = require('./routes/packages')
+const staysRoutes = require('./routes/stays')
+const userRoutes = require('./routes/users')
+const notificationRoutes = require('./routes/notifications')
 
 dotenv.config()
 
@@ -31,7 +38,7 @@ app.use(limiter)
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: '*',
   credentials: true
 }))
 
@@ -39,24 +46,52 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// Static files
-app.use('/uploads', express.static('uploads'))
+// Static files - serve uploads with CORS
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+  next()
+}, express.static('uploads'))
+
+app.use('/images', express.static(path.join(__dirname, '../public')))
+app.use(express.static(path.join(__dirname, '../public')))
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/startup-village-county', {
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/startup-village-county'
+
+mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => console.log('✅ MongoDB connected successfully'))
-.catch(err => console.error('❌ MongoDB connection error:', err))
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err)
+  // Try fallback to local MongoDB if cloud fails
+  if (mongoURI.includes('mongodb+srv://')) {
+    console.log('🔄 Trying local MongoDB fallback...')
+    mongoose.connect('mongodb://localhost:27017/startup-village-county', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => console.log('✅ Local MongoDB connected successfully'))
+    .catch(localErr => console.error('❌ Local MongoDB also failed:', localErr))
+  }
+})
 
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/hotels', hotelRoutes)
 app.use('/api/properties', propertyRoutes)
+app.use('/api/land-properties', landPropertyRoutes)
+app.use('/api/products', productRoutes)
 app.use('/api/accessories', accessoryRoutes)
 app.use('/api/events', eventRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/cars', carsRoutes)
+app.use('/api/packages', packagesRoutes)
+app.use('/api/stays', staysRoutes)
+app.use('/api/user', userRoutes)
+app.use('/api', notificationRoutes)
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

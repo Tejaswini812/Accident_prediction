@@ -8,6 +8,7 @@ import EventsSection from '../components/EventsSection'
 import PropertySection from '../components/PropertySection'
 import CarResellingSection from '../components/CarResellingSection'
 import AccessoriesSection from '../components/AccessoriesSection'
+import PackagesSection from '../components/PackagesSection'
 import Footer from '../components/Footer'
 import FloatingButtons from '../components/FloatingButtons'
 
@@ -26,6 +27,7 @@ const HomePage = () => {
         <PropertySection />
         <CarResellingSection />
         <AccessoriesSection />
+        <PackagesSection />
       </main>
       
       <Footer />

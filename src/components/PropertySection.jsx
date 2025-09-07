@@ -2,50 +2,149 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const PropertySection = () => {
-  const [properties, setProperties] = useState([
-    {
-      id: 1,
-      price: "₹1.15 Crores",
-      area: "1,500 sqft",
-      pricePerSqft: "₹7,666",
-      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-    },
-    {
-      id: 2,
-      price: "₹1.15 Crores",
-      area: "1,500 sqft",
-      pricePerSqft: "₹7,666",
-      image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-    },
-    {
-      id: 3,
-      price: "₹1.8 Crores",
-      area: "2,000 sqft",
-      pricePerSqft: "₹9,000",
-      image: "https://images.unsplash.com/photo-1506905925346-14b1e3dba9b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-    },
-    {
-      id: 4,
-      price: "₹2.5 Crores",
-      area: "2,200 sqft",
-      pricePerSqft: "₹11,363",
-      image: "https://images.unsplash.com/photo-1506905925346-14b1e3dba9b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-    },
-    {
-      id: 5,
-      price: "₹85 Lakhs",
-      area: "1,800 sqft",
-      pricePerSqft: "₹4,722",
-      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-    }
-  ])
+  const [properties, setProperties] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Properties are already set in initial state
-    console.log('PropertySection: Properties loaded with', properties.length, 'items')
+    fetchProperties()
   }, [])
+
+  const fetchProperties = async () => {
+    try {
+      // Fetch both properties and land properties
+      const [propertiesResponse, landPropertiesResponse] = await Promise.all([
+        axios.get('/api/properties'),
+        axios.get('/api/land-properties')
+      ])
+      
+      console.log('Properties API response:', propertiesResponse.data)
+      console.log('Land Properties API response:', landPropertiesResponse.data)
+      
+      // Transform properties data
+      const transformedProperties = propertiesResponse.data?.map(property => ({
+        id: property._id,
+        name: property.title,
+        price: `₹${(property.price / 100000).toFixed(2)} ${property.price >= 10000000 ? 'Crores' : 'Lakhs'}`,
+        area: `${property.area} sqft`,
+        pricePerSqft: `₹${Math.round(property.price / property.area).toLocaleString()}`,
+        image: property.images?.[0] || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        location: property.location || 'Location',
+        type: property.propertyType
+      })) || []
+      
+      // Transform land properties data
+      const transformedLandProperties = landPropertiesResponse.data?.map(landProperty => ({
+        id: `land_${landProperty._id}`,
+        name: landProperty.title,
+        price: `₹${(landProperty.price / 100000).toFixed(2)} ${landProperty.price >= 10000000 ? 'Crores' : 'Lakhs'}`,
+        area: `${landProperty.area} ${landProperty.unit}`,
+        pricePerSqft: `₹${Math.round(landProperty.price / landProperty.area).toLocaleString()}`,
+        image: landProperty.images?.[0] || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        location: landProperty.location || 'Location',
+        type: landProperty.landType
+      })) || []
+      
+      // Combine both types of properties
+      const allProperties = [...transformedProperties, ...transformedLandProperties]
+      
+      // Check if API returned empty array, use fallback data
+      if (allProperties.length === 0) {
+        console.log('API returned empty array, using fallback data')
+        setProperties([
+          {
+            id: 1,
+            name: "Luxury Villa",
+            price: "₹1.15 Crores",
+            area: "1,500 sqft",
+            pricePerSqft: "₹7,666",
+            image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          },
+          {
+            id: 2,
+            name: "Modern Apartment",
+            price: "₹1.15 Crores",
+            area: "1,500 sqft",
+            pricePerSqft: "₹7,666",
+            image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          },
+          {
+            id: 3,
+            name: "Premium House",
+            price: "₹1.8 Crores",
+            area: "2,000 sqft",
+            pricePerSqft: "₹9,000",
+            image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          },
+          {
+            id: 4,
+            name: "Executive Villa",
+            price: "₹2.5 Crores",
+            area: "2,200 sqft",
+            pricePerSqft: "₹11,363",
+            image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          },
+          {
+            id: 5,
+            name: "Cozy Home",
+            price: "₹85 Lakhs",
+            area: "1,800 sqft",
+            pricePerSqft: "₹4,722",
+            image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          }
+        ])
+      } else {
+        setProperties(allProperties)
+      }
+    } catch (error) {
+      console.log('API not available, using fallback data')
+      // Fallback to static data if API fails
+      setProperties([
+        {
+          id: 1,
+          name: "Luxury Villa",
+          price: "₹1.15 Crores",
+          area: "1,500 sqft",
+          pricePerSqft: "₹7,666",
+          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        },
+        {
+          id: 2,
+          name: "Modern Apartment",
+          price: "₹1.15 Crores",
+          area: "1,500 sqft",
+          pricePerSqft: "₹7,666",
+          image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        },
+        {
+          id: 3,
+          name: "Premium House",
+          price: "₹1.8 Crores",
+          area: "2,000 sqft",
+          pricePerSqft: "₹9,000",
+          image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        },
+        {
+          id: 4,
+          name: "Executive Villa",
+          price: "₹2.5 Crores",
+          area: "2,200 sqft",
+          pricePerSqft: "₹11,363",
+          image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        },
+        {
+          id: 5,
+          name: "Cozy Home",
+          price: "₹85 Lakhs",
+          area: "1,800 sqft",
+          pricePerSqft: "₹4,722",
+          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        }
+      ])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const goToPage = (pageIndex) => {
     setCurrentIndex(pageIndex)
@@ -90,7 +189,7 @@ const PropertySection = () => {
       <div className="property-container" style={{ padding: '0', margin: '0' }}>
         <div className="property-scroll" id="property-scroll" style={{ gap: '0', padding: '0', margin: '0' }}>
           {properties.map((property) => (
-            <div key={property.id} className="property-card" style={{ backgroundColor: 'white', padding: '4px', borderRadius: '4px', margin: '0' }}>
+            <div key={property.id} className="property-card">
               <div className="property-content">
                 <img
                   src={property.image}
@@ -100,24 +199,15 @@ const PropertySection = () => {
                     e.target.style.display = 'none'
                   }}
                 />
-                <div className="property-details" style={{ backgroundColor: 'white', padding: '2px', borderRadius: '2px', marginTop: '1px' }}>
-                  <div className="property-price" style={{ marginBottom: '0px', fontSize: '0.7rem', lineHeight: '1.0' }}>{property.price}</div>
-                  <div style={{ fontSize: '0.6rem', color: '#666', marginBottom: '0' }}>{property.area} • {property.pricePerSqft}</div>
+                <div className="property-details">
+                  <div className="property-name">{property.name}</div>
+                  <div className="property-price">{property.price}</div>
+                  <div className="property-area">{property.area} • {property.pricePerSqft}</div>
                 </div>
               </div>
               <button
                 className="buy-now-btn"
                 onClick={() => buyProperty(property)}
-                style={{ 
-                  padding: '2px 6px', 
-                  fontSize: '0.7rem', 
-                  marginTop: '2px',
-                  borderRadius: '2px',
-                  border: 'none',
-                  backgroundColor: '#22c55e',
-                  color: 'white',
-                  width: '100%'
-                }}
               >
                 Buy Now
               </button>

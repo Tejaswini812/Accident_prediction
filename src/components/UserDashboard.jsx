@@ -281,52 +281,6 @@ const UserDashboard = ({ user, onLogout }) => {
             <div>
               <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>Dashboard Overview</h2>
               
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                <div style={{ 
-                  padding: '1.5rem', 
-                  backgroundColor: '#f0f9ff', 
-                  borderRadius: '8px',
-                  border: '1px solid #0ea5e9'
-                }}>
-                  <h3 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>Properties</h3>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#0c4a6e' }}>
-                    {properties.length}
-                  </p>
-                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#0369a1' }}>
-                    Total properties listed
-                  </p>
-                </div>
-
-                <div style={{ 
-                  padding: '1.5rem', 
-                  backgroundColor: '#f0fdf4', 
-                  borderRadius: '8px',
-                  border: '1px solid #22c55e'
-                }}>
-                  <h3 style={{ margin: '0 0 0.5rem 0', color: '#14532d' }}>Events</h3>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#14532d' }}>
-                    {events.length}
-                  </p>
-                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#16a34a' }}>
-                    Total events created
-                  </p>
-                </div>
-
-                <div style={{ 
-                  padding: '1.5rem', 
-                  backgroundColor: '#fef3c7', 
-                  borderRadius: '8px',
-                  border: '1px solid #f59e0b'
-                }}>
-                  <h3 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>Status</h3>
-                  <p style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', color: '#92400e' }}>
-                    {user.isApproved ? 'Approved' : 'Pending'}
-                  </p>
-                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#d97706' }}>
-                    Account status
-                  </p>
-                </div>
-              </div>
 
               <div>
                 <h3 style={{ margin: '0 0 1rem 0', color: '#1e293b' }}>Recent Activity</h3>

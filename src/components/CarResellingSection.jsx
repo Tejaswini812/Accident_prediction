@@ -51,18 +51,18 @@ const CarResellingSection = () => {
       const response = await axios.get('/api/cars')
       console.log('Cars API response:', response.data)
       
-      if (response.data && response.data.data) {
-        console.log('Raw API cars:', response.data.data)
+      if (response.data && response.data.length > 0) {
+        console.log('Raw API cars:', response.data)
         
         // Transform API cars to match the expected format
-        const apiCars = response.data.data.map(car => {
+        const apiCars = response.data.map(car => {
           console.log('Processing car:', car)
           return {
             id: car._id || car.id,
-            name: car.name,
-            year: car.year,
-            price: car.price,
-            image: car.image ? `http://localhost:5000${car.image}` : "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+            name: `${car.make} ${car.model}`,
+            year: car.year.toString(),
+            price: `₹${(car.price / 100000).toFixed(2)} ${car.price >= 10000000 ? 'Crores' : 'Lakhs'}`,
+            image: car.images?.[0] ? `http://localhost:5000/${car.images[0]}` : "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
             description: car.description || '',
             mileage: car.mileage || '',
             fuelType: car.fuelType || ''
@@ -133,8 +133,8 @@ const CarResellingSection = () => {
 
   return (
     <div className="car-reselling-section" id="car-reselling">
+      <h2 style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.2rem', margin: '2rem 0 1rem 0', color: '#1e293b' }}>Zoom Car/ CAR Resale EXPO</h2>
       <div className="cars-section">
-        <h2 style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.2rem', margin: '2rem 0 1rem 0', color: '#1e293b' }}>Car Reselling</h2>
         <div className="cars-grid" id="cars-grid" style={{ 
           display: 'flex', 
           gap: '0', 
