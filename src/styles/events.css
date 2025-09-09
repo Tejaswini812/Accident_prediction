@@ -225,11 +225,11 @@
     min-width: calc(33.333% - 0.5rem) !important;
     max-width: calc(33.333% - 0.5rem) !important;
   }
-  /* laptop view */
+  /* laptop view of image*/
   .event-image {
     height: 300px !important;
   }
-  
+  /* heading on laptop view */
   .events-tab {
     margin-left: 70% !important;
     text-align: left !important;

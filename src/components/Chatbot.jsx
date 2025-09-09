@@ -26,12 +26,13 @@ const Chatbot = () => {
   }, [])
 
   useEffect(() => {
-    if (userInput.length > 0) {
+    // Only show chatbox if there are messages (after user clicks/enters)
+    if (messages.length > 0) {
       setChatboxVisible(true)
     } else {
       setChatboxVisible(false)
     }
-  }, [userInput])
+  }, [messages])
 
   const sendMessage = async () => {
     const inputValue = userInput.trim().toUpperCase()
@@ -39,6 +40,9 @@ const Chatbot = () => {
 
     setIsProcessing(true)
     const currentTime = new Date().toLocaleTimeString()
+
+    // Clear input immediately to prevent double submission
+    setUserInput('')
 
     // Show user message immediately
     const userMessage = {
@@ -52,7 +56,27 @@ const Chatbot = () => {
     // Show typing indicator for very short time
     setShowTyping(true)
 
-    // Create instant fallback data first
+    // Try to fetch real data first (non-blocking)
+    try {
+      const response = await axios.get(`/api/user/${inputValue}`, {
+        timeout: 2000
+      })
+
+      if (response.data.success) {
+        const userData = response.data
+        // Update with real data if available
+        setCurrentUser(userData)
+        setIsAuthenticated(true)
+        displayUserInfo(userData, inputValue, currentTime)
+        setShowTyping(false)
+        setIsProcessing(false)
+        return
+      }
+    } catch (error) {
+      console.log('API not available, using instant fallback data:', error.message)
+    }
+
+    // Create instant fallback data if API fails
     const instantUser = {
       name: `User ${inputValue}`,
       carNumber: `KA-${inputValue}-1234`,
@@ -68,35 +92,7 @@ const Chatbot = () => {
       setCurrentUser(instantUser)
       setIsAuthenticated(true)
       displayUserInfo(instantUser, inputValue, currentTime)
-      // Clear input after showing the response
-      setUserInput('')
-    }, 100) // Reduced from 300ms to 100ms
-
-    // Try to fetch real data in background (non-blocking)
-    try {
-      const response = await axios.get(`/api/user/${inputValue}`, {
-        timeout: 2000 // Reduced timeout
-      })
-
-      if (response.data.success) {
-        const userData = response.data.data
-        // Update with real data if available
-        setCurrentUser(userData)
-        // Replace the instant response with real data
-        setMessages(prev => {
-          const newMessages = [...prev]
-          const lastMessage = newMessages[newMessages.length - 1]
-          if (lastMessage && lastMessage.isUserInfo) {
-            lastMessage.userData = userData
-            lastMessage.buttons = generateButtons(userData, inputValue)
-          }
-          return newMessages
-        })
-      }
-    } catch (error) {
-      console.log('API not available, using instant fallback data:', error.message)
-      // Keep using the instant fallback data
-    }
+    }, 100)
 
     setIsProcessing(false)
   }
