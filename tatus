@@ -1,2 +1,4 @@
-* [32mmaster[m
-  [31mremotes/origin/master[m
+[33me20e01e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Update chatbot component and events styles
+[33m47bd52a[m Update all project files with latest changes
+[33m5911d92[m Initial commit - Fix hosting issues and deployment configuration
+[33m1c03758[m Complete Village County project with React frontend, Node.js backend, MongoDB integration, and all features working
