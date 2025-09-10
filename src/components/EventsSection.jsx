@@ -145,7 +145,10 @@ const EventsSection = () => {
           <span className="events-tab active">EVENTS</span>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <a href="#" className="view-all-link">View all →</a>
+        <a href="#" className="view-all-link" onClick={(e) => {
+          e.preventDefault()
+          alert(`Viewing all ${events.length} events:\n\n${events.map(e => `• ${e.title} - ${e.location} - ${e.date}`).join('\n')}`)
+        }}>View all →</a>
         </div>
       </div>
       

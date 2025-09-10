@@ -4,11 +4,30 @@ import apiClient from '../config/axios'
 const AuthContext = createContext()
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+  try {
+    const context = useContext(AuthContext)
+    if (!context) {
+      console.error('useAuth must be used within an AuthProvider')
+      // Return a default context to prevent crashes
+      return {
+        user: null,
+        login: () => {},
+        logout: () => {},
+        loading: false,
+        isAuthenticated: false
+      }
+    }
+    return context
+  } catch (error) {
+    console.error('Error in useAuth:', error)
+    return {
+      user: null,
+      login: () => {},
+      logout: () => {},
+      loading: false,
+      isAuthenticated: false
+    }
   }
-  return context
 }
 
 export const AuthProvider = ({ children }) => {
@@ -32,6 +51,9 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem('user')
           setUser(null)
         }
+      } else {
+        // No token or user data, set user to null
+        setUser(null)
       }
       setLoading(false)
     }

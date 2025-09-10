@@ -28,9 +28,44 @@ const upload = multer({
   }
 })
 
+// Test route without file uploads
+router.post('/test', async (req, res) => {
+  try {
+    console.log('=== TEST PROPERTY SUBMISSION ===')
+    console.log('Request body:', req.body)
+    
+    const { title, description, price, location, propertyType } = req.body
+    
+    const property = new Property({
+      title: title || 'Test Property',
+      description: description || 'Test Description',
+      price: parseInt(price) || 0,
+      location: location || 'Test Location',
+      propertyType: propertyType || 'apartment',
+      bedrooms: 0,
+      bathrooms: 0,
+      area: 0,
+      amenities: '',
+      contactInfo: '',
+      images: [],
+      createdAt: new Date()
+    })
+
+    await property.save()
+    res.status(201).json({ message: 'Test property created successfully', property })
+  } catch (error) {
+    console.error('Error creating test property:', error)
+    res.status(500).json({ error: 'Error creating test property', message: error.message })
+  }
+})
+
 // Create new property
 router.post('/', upload.array('images', 10), async (req, res) => {
   try {
+    console.log('=== PROPERTY SUBMISSION REQUEST ===')
+    console.log('Request body:', req.body)
+    console.log('Request files:', req.files)
+    
     const {
       title,
       description,
@@ -44,28 +79,44 @@ router.post('/', upload.array('images', 10), async (req, res) => {
       contactInfo
     } = req.body
 
+    console.log('Parsed fields:')
+    console.log('- title:', title)
+    console.log('- description:', description)
+    console.log('- price:', price, typeof price)
+    console.log('- location:', location)
+    console.log('- propertyType:', propertyType)
+
     const imagePaths = req.files ? req.files.map(file => file.path) : []
+    console.log('- imagePaths:', imagePaths)
 
     const property = new Property({
-      title,
-      description,
-      price: parseInt(price),
-      location,
-      propertyType,
+      title: title || 'Untitled Property',
+      description: description || 'No description provided',
+      price: parseInt(price) || 0,
+      location: location || 'Location not specified',
+      propertyType: propertyType || 'apartment',
       bedrooms: bedrooms ? parseInt(bedrooms) : 0,
       bathrooms: bathrooms ? parseInt(bathrooms) : 0,
       area: area ? parseInt(area) : 0,
-      amenities,
-      contactInfo,
+      amenities: amenities || '',
+      contactInfo: contactInfo || '',
       images: imagePaths,
       createdAt: new Date()
     })
 
+    console.log('Property object to save:', property)
     await property.save()
+    console.log('Property saved successfully:', property._id)
     res.status(201).json({ message: 'Property created successfully', property })
   } catch (error) {
     console.error('Error creating property:', error)
-    res.status(500).json({ error: 'Error creating property' })
+    console.error('Error details:', error.message)
+    console.error('Error stack:', error.stack)
+    res.status(500).json({ 
+      error: 'Error creating property',
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    })
   }
 })
 

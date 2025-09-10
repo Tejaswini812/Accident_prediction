@@ -10,6 +10,22 @@ const PropertySection = () => {
     fetchProperties()
   }, [])
 
+  // Handle scroll events to update current index
+  useEffect(() => {
+    const scrollContainer = document.getElementById('property-scroll')
+    if (!scrollContainer) return
+
+    const handleScroll = () => {
+      const cardWidth = scrollContainer.querySelector('.property-card')?.offsetWidth || 0
+      const scrollLeft = scrollContainer.scrollLeft
+      const newIndex = Math.round(scrollLeft / (cardWidth + 16))
+      setCurrentIndex(newIndex)
+    }
+
+    scrollContainer.addEventListener('scroll', handleScroll)
+    return () => scrollContainer.removeEventListener('scroll', handleScroll)
+  }, [properties])
+
   const fetchProperties = async () => {
     try {
       // Fetch both properties and land properties
@@ -22,28 +38,65 @@ const PropertySection = () => {
       console.log('Land Properties API response:', landPropertiesResponse.data)
       
       // Transform properties data
-      const transformedProperties = propertiesResponse.data?.map(property => ({
-        id: property._id,
-        name: property.title,
-        price: `₹${(property.price / 100000).toFixed(2)} ${property.price >= 10000000 ? 'Crores' : 'Lakhs'}`,
-        area: `${property.area} sqft`,
-        pricePerSqft: `₹${Math.round(property.price / property.area).toLocaleString()}`,
-        image: property.images?.[0] || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-        location: property.location || 'Location',
-        type: property.propertyType
-      })) || []
+      const transformedProperties = propertiesResponse.data?.map(property => {
+        console.log('Property data:', property)
+        console.log('Property images:', property.images)
+        
+        // Better image URL handling
+        let imageUrl = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' // Default fallback
+        
+        if (property.images?.[0]) {
+          const imagePath = property.images[0]
+          // Check if it's already a full URL (external image)
+          if (imagePath.startsWith('http')) {
+            imageUrl = imagePath
+          } else {
+            // It's a local file path, add localhost prefix and fix path separators
+            imageUrl = `http://localhost:5000/${imagePath.replace(/\\/g, '/')}`
+          }
+        }
+        
+        console.log('Final image URL:', imageUrl)
+        
+        return {
+          id: property._id,
+          name: property.title,
+          price: `₹${(property.price / 100000).toFixed(2)} ${property.price >= 10000000 ? 'Crores' : 'Lakhs'}`,
+          area: `${property.area} sqft`,
+          pricePerSqft: `₹${Math.round(property.price / property.area).toLocaleString()}`,
+          image: imageUrl,
+          location: property.location || 'Location',
+          type: property.propertyType
+        }
+      }) || []
       
       // Transform land properties data
-      const transformedLandProperties = landPropertiesResponse.data?.map(landProperty => ({
-        id: `land_${landProperty._id}`,
-        name: landProperty.title,
-        price: `₹${(landProperty.price / 100000).toFixed(2)} ${landProperty.price >= 10000000 ? 'Crores' : 'Lakhs'}`,
-        area: `${landProperty.area} ${landProperty.unit}`,
-        pricePerSqft: `₹${Math.round(landProperty.price / landProperty.area).toLocaleString()}`,
-        image: landProperty.images?.[0] || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-        location: landProperty.location || 'Location',
-        type: landProperty.landType
-      })) || []
+      const transformedLandProperties = landPropertiesResponse.data?.map(landProperty => {
+        // Better image URL handling for land properties
+        let imageUrl = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' // Default fallback
+        
+        if (landProperty.images?.[0]) {
+          const imagePath = landProperty.images[0]
+          // Check if it's already a full URL (external image)
+          if (imagePath.startsWith('http')) {
+            imageUrl = imagePath
+          } else {
+            // It's a local file path, add localhost prefix and fix path separators
+            imageUrl = `http://localhost:5000/${imagePath.replace(/\\/g, '/')}`
+          }
+        }
+        
+        return {
+          id: `land_${landProperty._id}`,
+          name: landProperty.title,
+          price: `₹${(landProperty.price / 100000).toFixed(2)} ${landProperty.price >= 10000000 ? 'Crores' : 'Lakhs'}`,
+          area: `${landProperty.area} ${landProperty.unit}`,
+          pricePerSqft: `₹${Math.round(landProperty.price / landProperty.area).toLocaleString()}`,
+          image: imageUrl,
+          location: landProperty.location || 'Location',
+          type: landProperty.landType
+        }
+      }) || []
       
       // Combine both types of properties
       const allProperties = [...transformedProperties, ...transformedLandProperties]
@@ -148,6 +201,15 @@ const PropertySection = () => {
 
   const goToPage = (pageIndex) => {
     setCurrentIndex(pageIndex)
+    const scrollContainer = document.getElementById('property-scroll')
+    if (scrollContainer) {
+      const cardWidth = scrollContainer.querySelector('.property-card')?.offsetWidth || 0
+      const scrollAmount = pageIndex * (cardWidth + 16) // 16px for gap
+      scrollContainer.scrollTo({
+        left: scrollAmount,
+        behavior: 'smooth'
+      })
+    }
   }
 
   const buyProperty = (property) => {
@@ -177,12 +239,18 @@ const PropertySection = () => {
     <div className="property-section" style={{ display: 'block', visibility: 'visible', margin: '0', padding: '0' }}>
       <div className="property-header">
         <h3 className="property-title" style={{ color: '#1e293b', fontSize: '1.5rem', fontWeight: 'bold' }}>Buy & SELL / lease → Property</h3>
-        <div className="property-location-buttons">
-          {['Wayanad', 'Shakaleshwara', 'Hassan', 'Coorg', 'Mysore', 'Chikmagalore', 'BR Hills', 'Shivana Samudra', 'Bandipur'].map((location, index) => (
-            <button key={index} className="property-location-btn">
-              {location}
-            </button>
-          ))}
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="property-location-buttons">
+            {['Wayanad', 'Shakaleshwara', 'Hassan', 'Coorg', 'Mysore', 'Chikmagalore', 'BR Hills', 'Shivana Samudra', 'Bandipur'].map((location, index) => (
+              <button key={index} className="property-location-btn">
+                {location}
+              </button>
+            ))}
+          </div>
+          <a href="#" className="view-all-link" onClick={(e) => {
+            e.preventDefault()
+            alert(`Viewing all ${properties.length} properties:\n\n${properties.map(p => `• ${p.name} - ${p.price} - ${p.location}`).join('\n')}`)
+          }}>View All →</a>
         </div>
       </div>
       

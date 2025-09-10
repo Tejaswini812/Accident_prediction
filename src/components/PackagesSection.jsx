@@ -116,8 +116,16 @@ const PackagesSection = () => {
   return (
     <div className="packages-section">
       <div className="packages-header">
-        <h3 className="packages-title">Travel Packages</h3>
-        <p className="packages-subtitle">Discover amazing destinations</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h3 className="packages-title">Travel Packages</h3>
+            <p className="packages-subtitle">Discover amazing destinations</p>
+          </div>
+          <a href="#" className="view-all-link" onClick={(e) => {
+            e.preventDefault()
+            alert(`Viewing all ${packages.length} packages:\n\n${packages.map(p => `• ${p.title} - ${p.destination} - ${p.price}`).join('\n')}`)
+          }}>View All →</a>
+        </div>
       </div>
       
       <div className="packages-container">

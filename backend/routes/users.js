@@ -1,65 +1,59 @@
 const express = require('express')
+const fs = require('fs')
+const path = require('path')
 const router = express.Router()
 
-// Mock user data for demonstration
-const mockUsers = [
-  {
-    id: 'PS101',
-    name: 'John Doe',
-    carNumber: 'KA-01-AB-1234',
-    phone: '+91-9876543210',
-    whatsapp: 'https://wa.me/919876543210',
-    email: 'john.doe@example.com',
-    chatLink: true,
-    privateCall: true
-  },
-  {
-    id: 'PS102',
-    name: 'Jane Smith',
-    carNumber: 'KA-02-CD-5678',
-    phone: '+91-9876543211',
-    whatsapp: 'https://wa.me/919876543211',
-    email: 'jane.smith@example.com',
-    chatLink: true,
-    privateCall: true
-  },
-  {
-    id: 'PS103',
-    name: 'Mike Johnson',
-    carNumber: 'KA-03-EF-9012',
-    phone: '+91-9876543212',
-    whatsapp: 'https://wa.me/919876543212',
-    email: 'mike.johnson@example.com',
-    chatLink: true,
-    privateCall: true
-  },
-  {
-    id: 'PS104',
-    name: 'Sarah Wilson',
-    carNumber: 'KA-04-GH-3456',
-    phone: '+91-9876543213',
-    whatsapp: 'https://wa.me/919876543213',
-    email: 'sarah.wilson@example.com',
-    chatLink: true,
-    privateCall: true
-  },
-  {
-    id: 'PS105',
-    name: 'David Brown',
-    carNumber: 'KA-05-IJ-7890',
-    phone: '+91-9876543214',
-    whatsapp: 'https://wa.me/919876543214',
-    email: 'david.brown@example.com',
-    chatLink: true,
-    privateCall: true
+// Function to read and parse CSV data
+function loadUsersFromCSV() {
+  try {
+    const csvPath = path.join(__dirname, '../data/UserData.csv')
+    const csvData = fs.readFileSync(csvPath, 'utf8')
+    const lines = csvData.split('\n')
+    const users = []
+    
+    // Skip header row (index 0)
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim()
+      if (line) {
+        const columns = line.split(',')
+        if (columns.length >= 8) {
+          const user = {
+            id: columns[0]?.trim() || '',
+            name: columns[1]?.trim() || '',
+            email: columns[2]?.trim() || '',
+            phone: columns[3]?.trim() || '',
+            whatsapp: columns[4]?.trim() || '',
+            privateCall: columns[5]?.trim() || '',
+            chatLink: columns[6]?.trim() || '',
+            carNumber: columns[7]?.trim() || '',
+            referralId: columns[8]?.trim() || '',
+            linkedin: columns[9]?.trim() || ''
+          }
+          
+          // Only add users with valid data
+          if (user.id && user.name) {
+            users.push(user)
+          }
+        }
+      }
+    }
+    
+    console.log(`Loaded ${users.length} users from CSV`)
+    return users
+  } catch (error) {
+    console.error('Error loading CSV data:', error)
+    return []
   }
-]
+}
+
+// Load users from CSV
+let users = loadUsersFromCSV()
 
 // Get user by ID
 router.get('/:userId', (req, res) => {
   try {
     const { userId } = req.params
-    const user = mockUsers.find(u => u.id === userId.toUpperCase())
+    const user = users.find(u => u.id === userId.toUpperCase())
     
     if (!user) {
       return res.status(404).json({
@@ -69,9 +63,23 @@ router.get('/:userId', (req, res) => {
       })
     }
     
+    // Format the response to match expected structure
+    const formattedUser = {
+      id: user.id,
+      name: user.name,
+      carNumber: user.carNumber,
+      phone: user.phone,
+      whatsapp: user.whatsapp,
+      email: user.email,
+      chatLink: !!user.chatLink,
+      privateCall: !!user.privateCall,
+      referralId: user.referralId,
+      linkedin: user.linkedin
+    }
+    
     res.json({
       success: true,
-      data: user,
+      data: formattedUser,
       message: 'User found successfully'
     })
   } catch (error) {
@@ -87,10 +95,13 @@ router.get('/:userId', (req, res) => {
 // Get all users (for admin purposes)
 router.get('/', (req, res) => {
   try {
+    // Reload users from CSV in case it was updated
+    users = loadUsersFromCSV()
+    
     res.json({
       success: true,
-      data: mockUsers,
-      count: mockUsers.length,
+      data: users,
+      count: users.length,
       message: 'Users retrieved successfully'
     })
   } catch (error) {
@@ -103,38 +114,13 @@ router.get('/', (req, res) => {
   }
 })
 
-// Create new user
+// Create new user (Note: This is read-only from CSV, but kept for API compatibility)
 router.post('/', (req, res) => {
   try {
-    const { id, name, carNumber, phone, whatsapp, email } = req.body
-    
-    // Check if user already exists
-    const existingUser = mockUsers.find(u => u.id === id.toUpperCase())
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'User with this ID already exists',
-        error: 'USER_EXISTS'
-      })
-    }
-    
-    const newUser = {
-      id: id.toUpperCase(),
-      name,
-      carNumber,
-      phone,
-      whatsapp: whatsapp || `https://wa.me/${phone.replace(/\D/g, '')}`,
-      email,
-      chatLink: true,
-      privateCall: true
-    }
-    
-    mockUsers.push(newUser)
-    
-    res.status(201).json({
-      success: true,
-      data: newUser,
-      message: 'User created successfully'
+    res.status(405).json({
+      success: false,
+      message: 'User creation not supported. Data is read-only from CSV file.',
+      error: 'READ_ONLY_MODE'
     })
   } catch (error) {
     console.error('Error creating user:', error)
@@ -146,27 +132,13 @@ router.post('/', (req, res) => {
   }
 })
 
-// Update user
+// Update user (Note: This is read-only from CSV, but kept for API compatibility)
 router.put('/:userId', (req, res) => {
   try {
-    const { userId } = req.params
-    const updates = req.body
-    
-    const userIndex = mockUsers.findIndex(u => u.id === userId.toUpperCase())
-    if (userIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-        error: 'USER_NOT_FOUND'
-      })
-    }
-    
-    mockUsers[userIndex] = { ...mockUsers[userIndex], ...updates }
-    
-    res.json({
-      success: true,
-      data: mockUsers[userIndex],
-      message: 'User updated successfully'
+    res.status(405).json({
+      success: false,
+      message: 'User update not supported. Data is read-only from CSV file.',
+      error: 'READ_ONLY_MODE'
     })
   } catch (error) {
     console.error('Error updating user:', error)
@@ -178,26 +150,13 @@ router.put('/:userId', (req, res) => {
   }
 })
 
-// Delete user
+// Delete user (Note: This is read-only from CSV, but kept for API compatibility)
 router.delete('/:userId', (req, res) => {
   try {
-    const { userId } = req.params
-    
-    const userIndex = mockUsers.findIndex(u => u.id === userId.toUpperCase())
-    if (userIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-        error: 'USER_NOT_FOUND'
-      })
-    }
-    
-    const deletedUser = mockUsers.splice(userIndex, 1)[0]
-    
-    res.json({
-      success: true,
-      data: deletedUser,
-      message: 'User deleted successfully'
+    res.status(405).json({
+      success: false,
+      message: 'User deletion not supported. Data is read-only from CSV file.',
+      error: 'READ_ONLY_MODE'
     })
   } catch (error) {
     console.error('Error deleting user:', error)

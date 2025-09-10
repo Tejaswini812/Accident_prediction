@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import apiClient from '../config/axios'
 
-const HostProperty = ({ onClose }) => {
+const HostProperty = ({ onClose, onAuthRequired, isInline = false }) => {
+  const { isAuthenticated } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -52,6 +54,13 @@ const HostProperty = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Check if user is authenticated before submitting
+    if (!isAuthenticated) {
+      onAuthRequired('Host a Property')
+      return
+    }
+    
     setLoading(true)
 
     try {
@@ -84,14 +93,16 @@ const HostProperty = ({ onClose }) => {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="property-form-modal">
-        <div className="modal-header">
-          <h2>Host a Property</h2>
-          <button className="close-btn" onClick={onClose}>
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
+    <div className={isInline ? "inline-form" : "modal-overlay"}>
+      <div className={isInline ? "property-form-inline" : "property-form-modal"}>
+        {!isInline && (
+          <div className="modal-header">
+            <h2>Host a Property</h2>
+            <button className="close-btn" onClick={onClose}>
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="property-form">
           <div className="form-section">

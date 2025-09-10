@@ -61,35 +61,40 @@
 
 /* Action buttons container */
 .action-buttons {
-  display: flex;
-  gap: 10px;
-  margin: 15px 0;
-  flex-wrap: wrap;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.3rem !important;
+  margin: 0.5rem auto !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
 }
 
 .action-buttons .action-btn {
-  flex: 1;
-  min-width: 120px;
+  flex: none !important;
+  min-width: auto !important;
 }
 
 /* Force override any conflicting styles for buttons within action-buttons */
 .action-buttons .action-btn, .action-buttons .chat-btn, .action-buttons .call-btn, .action-buttons .whatsapp-btn {
-  display: inline-flex !important;
+  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 8px !important;
+  gap: 0 !important;
   cursor: pointer !important;
-  transition: background 0.3s ease !important;
-  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.7rem !important;
   text-decoration: none !important;
-  min-height: 44px !important;
+  min-height: 32px !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
   border: none !important;
-  border-radius: 6px !important;
-  padding: 10px 20px !important;
-  background: linear-gradient(90deg, #28a745, #218838) !important;
+  border-radius: 5px !important;
+  padding: 0.4rem 0.8rem !important;
   color: white !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
+  flex: none !important;
+  white-space: nowrap !important;
 }
 
 /* Icon styling */
@@ -112,14 +117,18 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .action-buttons {
-    flex-direction: row;
-    gap: 8px;
+    flex-direction: row !important;
+    gap: 0.3rem !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
   }
   .action-buttons .action-btn {
-    min-width: auto;
-    padding: 8px 12px;
-    font-size: 12px;
-    min-height: 36px;
+    min-width: auto !important;
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.6rem !important;
+    min-height: 28px !important;
+    flex: none !important;
   }
   .action-buttons .action-btn i {
     font-size: 14px;
@@ -434,10 +443,10 @@ body::before {
 }
 
 .message {
-  margin-bottom: 1rem;
-  padding: 1rem;
-  border-radius: 12px;
-  max-width: 80%;
+  margin-bottom: 0.1rem;
+  padding: 0.1rem;
+  border-radius: 3px;
+  max-width: 90%;
   word-wrap: break-word;
   animation: messageSlideIn 0.3s ease-out;
 }
@@ -445,6 +454,39 @@ body::before {
 @keyframes messageSlideIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile view - Reduce message box size */
+@media (max-width: 768px) {
+  .message {
+    /* ps101..... */
+    max-width: 40% !important;                            
+    padding: 0.08rem !important;
+    margin-bottom: 0.08rem !important;
+  }
+  
+  .message.user {
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 0.2rem 0.4rem !important;
+  }
+  
+  .message.bot {
+    max-width: 90% !important;
+  }
+  
+  .message-content {
+    font-size: 0.4rem;
+    gap: 0.01rem;
+  }
+  
+  .message-text {
+    font-size: 0.3rem;
+  }
+  
+  .message-time {
+    font-size: 0.25rem;
+  }
 }
 
 .message.user {
@@ -498,11 +540,19 @@ body::before {
 }
 
 .customer-details-card {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border: 1px solid #e0e0e0;
+  background: white !important;
+  border-radius: 6px !important;
+  padding: 0.5rem !important;
+  margin: 0.3rem auto !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  max-width: 90% !important;
+  width: 90% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
 }
 
 .customer-avatar {
@@ -515,85 +565,91 @@ body::before {
   color: #28a745;
 }
 
-.customer-name {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  text-align: center;
-  margin-bottom: 0.5rem;
+.customer-details-card .customer-name {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  text-align: center !important;
+  margin-bottom: 0.3rem !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  line-height: 1.2 !important;
 }
 
-.customer-car {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: #666;
+.customer-details-card .customer-car {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.3rem !important;
+  color: #666 !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 0.2rem !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-.customer-car i {
-  color: #28a745;
+.customer-details-card .customer-car i {
+  color: #28a745 !important;
 }
 
-.car-number {
-  font-weight: 600;
-  color: #2c3e50;
+.customer-details-card .car-number {
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  font-size: 0.9rem !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: inline !important;
 }
 
 .action-buttons {
-  display: flex;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  margin: 0.5rem auto !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
 }
 
 .action-btn {
-  background: linear-gradient(135deg, #56c556, #28a745);
-  color: #fff;
-  border: none;
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(146, 228, 146, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  justify-content: center;
-  min-width: 100px;
-  max-width: 110px;
+  background: linear-gradient(90deg, #28a745, #218838) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 1rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.3rem !important;
+  cursor: pointer !important;
+  transition: background 0.3s ease !important;
+  font-size: 0.7rem !important;
+  text-decoration: none !important;
+  min-height: 32px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  flex: none !important;
+  white-space: nowrap !important;
+  max-width: 30% !important;
 }
 
 .action-btn:hover {
-  background: linear-gradient(135deg, #56c556, #28a745);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(146, 228, 146, 0.4);
+  background: linear-gradient(90deg, #218838, #1e7e34) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
-.chat-btn {
-  background: linear-gradient(135deg, #56c556, #28a745);
+.chat-btn, .call-btn, .whatsapp-btn {
+  background: linear-gradient(90deg, #28a745, #218838) !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 1rem !important;
+  min-height: 32px !important;
 }
 
-.chat-btn:hover {
-  background: linear-gradient(135deg, #56c556, #28a745);
-}
-
-.call-btn {
-  background: linear-gradient(135deg, #56c556, #28a745);
-}
-
-.call-btn:hover {
-  background: linear-gradient(135deg, #56c556, #28a745);
-}
-
-.whatsapp-btn {
-  background: linear-gradient(135deg, #56c556, #28a745);
-}
-
-.whatsapp-btn:hover {
-  background: linear-gradient(135deg, #56c556, #28a745);
+.chat-btn:hover, .call-btn:hover, .whatsapp-btn:hover {
+  background: linear-gradient(90deg, #218838, #1e7e34) !important;
 }
 
 .message-time {
@@ -744,15 +800,16 @@ body::before {
 .message-content {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.2rem;
+  font-size: 0.8rem;
 }
 
 .message-text {
-  font-size: 0.9rem;
+  font-size: 0.7rem;
 }
 
 .message-time {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   opacity: 0.8;
 }
 
@@ -2524,15 +2581,16 @@ body::before {
     min-width: 100px;
   }
   .action-buttons {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    justify-content: center;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 0.2rem !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
   .action-btn {
-    width: auto;
-    min-width: 120px;
-    flex: 0 1 auto;
+    width: auto !important;
+    min-width: auto !important;
+    flex: none !important;
   }
   .private-chat-window {
     width: 95%;
@@ -2721,15 +2779,16 @@ body::before {
     padding: 0.8rem 1rem;
   }
   .action-buttons {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    justify-content: center;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 0.15rem !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
   .action-btn {
-    width: auto;
-    min-width: 100px;
-    flex: 0 1 auto;
+    width: auto !important;
+    min-width: auto !important;
+    flex: none !important;
   }
   .chatbox {
     max-height: 200px;

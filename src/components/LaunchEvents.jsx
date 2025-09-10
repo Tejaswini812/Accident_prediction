@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import apiClient from '../config/axios'
 
-const LaunchEvents = ({ onClose }) => {
+const LaunchEvents = ({ onClose, onAuthRequired, isInline = false }) => {
+  const { isAuthenticated } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -53,6 +55,13 @@ const LaunchEvents = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Check if user is authenticated before submitting
+    if (!isAuthenticated) {
+      onAuthRequired('Launch Events')
+      return
+    }
+    
     setLoading(true)
 
     try {
@@ -85,14 +94,16 @@ const LaunchEvents = ({ onClose }) => {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="event-form-modal">
-        <div className="modal-header">
-          <h2>Launch Events</h2>
-          <button className="close-btn" onClick={onClose}>
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
+    <div className={isInline ? "inline-form" : "modal-overlay"}>
+      <div className={isInline ? "event-form-inline" : "event-form-modal"}>
+        {!isInline && (
+          <div className="modal-header">
+            <h2>Launch Events</h2>
+            <button className="close-btn" onClick={onClose}>
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="event-form">
           <div className="form-section">

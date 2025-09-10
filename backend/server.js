@@ -38,9 +38,14 @@ app.use(limiter)
 
 // CORS configuration
 app.use(cors({
-  origin: '*',
-  credentials: true
+  origin: ['https://villagecounty.in', 'http://localhost:3000', 'http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }))
+
+// Handle preflight requests
+app.options('*', cors())
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }))
@@ -98,6 +103,16 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Startup Village County API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  })
+})
+
+// CORS test endpoint
+app.get('/api/cors-test', (req, res) => {
+  res.json({ 
+    message: 'CORS is working!',
+    origin: req.headers.origin,
     timestamp: new Date().toISOString()
   })
 })

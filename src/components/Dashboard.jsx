@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 const Dashboard = () => {
+  const [showFullProfile, setShowFullProfile] = useState(false)
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-sidebar">
@@ -16,41 +18,63 @@ const Dashboard = () => {
             <p>+91 00000 00000</p>
           </div>
           
-          <div className="status-indicators">
-            <div className="status-item">
-              <i className="fas fa-map-marker-alt"></i>
-              <span>Location not set</span>
+          {/* Mobile View - Show profile picture with name and View More option */}
+          <div className="mobile-profile-summary">
+            <div className="mobile-profile-photo">
+              <div className="profile-logo">STARTUP VILLAGE COUNTY</div>
             </div>
-            <div className="status-item">
-              <i className="fas fa-briefcase"></i>
-              <span>Not a member yet</span>
+            <div className="mobile-profile-name">
+              <h3>Guest User</h3>
+              <p>guest@example.com</p>
+              <p>+91 00000 00000</p>
             </div>
-            <div className="status-item">
-              <i className="fas fa-star"></i>
-              <span>No rating yet</span>
-            </div>
+            <button 
+              className="see-more-btn"
+              onClick={() => setShowFullProfile(!showFullProfile)}
+            >
+              <i className={`fas ${showFullProfile ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
+              {showFullProfile ? 'View Less' : 'View More'}
+            </button>
           </div>
           
-          <div className="signup-required">
-            <h4>Sign Up Required</h4>
-            <div className="requirement-item">
-              <i className="fas fa-times"></i>
-              <span>Not Signed Up</span>
+          {/* Full Profile Details - Hidden on mobile initially, shows when View More is clicked */}
+          <div className={`mobile-full-profile-details ${showFullProfile ? 'show' : 'hide'}`}>
+            <div className="status-indicators">
+              <div className="status-item">
+                <i className="fas fa-map-marker-alt"></i>
+                <span>Location not set</span>
+              </div>
+              <div className="status-item">
+                <i className="fas fa-briefcase"></i>
+                <span>Not a member yet</span>
+              </div>
+              <div className="status-item">
+                <i className="fas fa-star"></i>
+                <span>No rating yet</span>
+              </div>
             </div>
-            <div className="requirement-item">
-              <i className="fas fa-times"></i>
-              <span>No Profile</span>
+            
+            <div className="signup-required">
+              <h4>Sign Up Required</h4>
+              <div className="requirement-item">
+                <i className="fas fa-times"></i>
+                <span>Not Signed Up</span>
+              </div>
+              <div className="requirement-item">
+                <i className="fas fa-times"></i>
+                <span>No Profile</span>
+              </div>
+              <div className="requirement-item">
+                <i className="fas fa-times"></i>
+                <span>No Verification</span>
+              </div>
             </div>
-            <div className="requirement-item">
-              <i className="fas fa-times"></i>
-              <span>No Verification</span>
-            </div>
+            
+            <button className="signup-btn">
+              <i className="fas fa-user-plus"></i>
+              Sign Up Now
+            </button>
           </div>
-          
-          <button className="signup-btn">
-            <i className="fas fa-user-plus"></i>
-            Sign Up Now
-          </button>
         </div>
       </div>
       

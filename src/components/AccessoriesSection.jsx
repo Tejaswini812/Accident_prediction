@@ -21,14 +21,17 @@ const AccessoriesSection = () => {
       console.log('Accessories API response:', accessoriesResponse.data)
       console.log('Products API response:', productsResponse.data)
       
+      // Handle both array and object response formats
+      const accessoriesData = accessoriesResponse.data.data || accessoriesResponse.data
+      
       // Transform accessories data
-      const transformedAccessories = accessoriesResponse.data.data?.map(accessory => ({
+      const transformedAccessories = (accessoriesData && Array.isArray(accessoriesData)) ? accessoriesData.map(accessory => ({
         id: accessory._id,
         name: accessory.name,
         price: `₹${accessory.price}`,
         description: accessory.description || 'High quality product',
         image: accessory.image || 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-      })) || []
+      })) : []
       
       // Transform products data
       const transformedProducts = productsResponse.data?.map(product => ({
@@ -156,8 +159,16 @@ const AccessoriesSection = () => {
   return (
     <div className="accessories-section">
       <div className="accessories-header">
-        <h3 className="accessories-title">Source From our online stores</h3>
-        <p className="accessories-subtitle">Quality products at affordable prices</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h3 className="accessories-title">Source From our online stores</h3>
+            <p className="accessories-subtitle">Quality products at affordable prices</p>
+          </div>
+          <a href="#" className="view-all-link" onClick={(e) => {
+            e.preventDefault()
+            alert(`Viewing all ${accessories.length} products:\n\n${accessories.map(a => `• ${a.name} - ${a.price}`).join('\n')}`)
+          }}>View All →</a>
+        </div>
       </div>
       
       <div className="accessories-container">

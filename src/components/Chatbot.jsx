@@ -77,7 +77,29 @@ const Chatbot = () => {
     }
 
     // Create instant fallback data if API fails
-    const instantUser = {
+    // Try to find user in a simple local lookup first
+    const fallbackUsers = {
+      'PS101': { name: 'Tejaswini', carNumber: 'KA01AB1234', phone: '8431382513', whatsapp: 'https://wa.me/qr/YSRQCK4VTLARI1' },
+      'PS102': { name: 'channabasava', carNumber: 'KA41A8093', phone: '9008007267', whatsapp: 'https://wa.me/919876501234' },
+      'PS103': { name: 'Asha', carNumber: 'KA03EF9012', phone: '9876512345', whatsapp: 'https://wa.me/919876512345' },
+      'PS104': { name: 'Ravi', carNumber: 'KA04GH3456', phone: '9876523456', whatsapp: 'https://wa.me/919876523456' },
+      'PS105': { name: 'Priya', carNumber: 'KA05IJ7890', phone: '9876534567', whatsapp: 'https://wa.me/919876534567' },
+      'PS106': { name: 'Kiran', carNumber: 'KA06KL1234', phone: '9876549876', whatsapp: 'https://wa.me/919876549876' },
+      'PS107': { name: 'Sneha', carNumber: 'KA07MN5678', phone: '9876556789', whatsapp: 'https://wa.me/919876556789' },
+      'PS108': { name: 'Ramesh', carNumber: 'KA08OP9012', phone: '9876567890', whatsapp: 'https://wa.me/919876567890' },
+      'PS109': { name: 'Anjali', carNumber: 'KA09QR3456', phone: '9876578901', whatsapp: 'https://wa.me/919876578901' },
+      'PS110': { name: 'Manjunath', carNumber: 'KA10ST7890', phone: '9876589012', whatsapp: 'https://wa.me/919876589012' }
+    }
+    
+    const fallbackUser = fallbackUsers[inputValue]
+    const instantUser = fallbackUser ? {
+      name: fallbackUser.name,
+      carNumber: fallbackUser.carNumber,
+      whatsapp: fallbackUser.whatsapp,
+      phone: `+91-${fallbackUser.phone}`,
+      chatLink: true,
+      privateCall: true
+    } : {
       name: `User ${inputValue}`,
       carNumber: `KA-${inputValue}-1234`,
       whatsapp: `https://wa.me/9198765${inputValue}`,
@@ -85,6 +107,7 @@ const Chatbot = () => {
       chatLink: true,
       privateCall: true
     }
+
 
     // Display instant response immediately
     setTimeout(() => {
@@ -102,13 +125,13 @@ const Chatbot = () => {
     
     let buttons = ''
     if (chatLink) {
-      buttons += `<button onclick="openPrivateChat('${name}', '${userInput}')" class="action-btn chat-btn" style="flex: 1; padding: 0.8rem;"><i class='fas fa-comments'></i> Private Chat</button>`
+      buttons += `<button onclick="openPrivateChat('${name}', '${userInput}')" class="action-btn chat-btn" style="flex: 1; padding: 0.8rem;">Private Chat</button>`
     }
     if (privateCall) {
-      buttons += `<button onclick="initiatePrivateCall('${name}', '${userInput}', '${phone}')" class="action-btn call-btn" style="flex: 1; padding: 0.8rem;"><i class='fas fa-phone'></i> Private Call</button>`
+      buttons += `<button onclick="initiatePrivateCall('${name}', '${userInput}', '${phone}')" class="action-btn call-btn" style="flex: 1; padding: 0.8rem;">Private Call</button>`
     }
     if (whatsapp) {
-      buttons += `<button onclick="window.open('${whatsapp}', '_blank')" class="action-btn whatsapp-btn" style="flex: 1; padding: 0.8rem;"><i class='fab fa-whatsapp'></i> WhatsApp</button>`
+      buttons += `<button onclick="window.open('${whatsapp}', '_blank')" class="action-btn whatsapp-btn" style="flex: 1; padding: 0.8rem;">WhatsApp</button>`
     }
     return buttons
   }
@@ -300,7 +323,7 @@ const Chatbot = () => {
         <p className="welcome-text">Welcome to Startup Village County</p>
         
         {chatboxVisible && (
-          <div className="chatbox" ref={chatboxRef}>
+          <div className="chatbox visible" ref={chatboxRef}>
             {messages.map((message) => (
               <div key={message.id} className={`message ${message.sender}`}>
                 {message.isUserInfo ? (
@@ -309,31 +332,35 @@ const Chatbot = () => {
                       <i className="fas fa-user-circle"></i>
                     </div>
                     <div className="customer-info">
-                      <div className="customer-name">{message.userData.name}</div>
+                      <div className="customer-name">
+                        {message.userData?.data?.name || message.userData?.name || 'NO NAME'}
+                      </div>
                       <div className="customer-car">
                         <i className="fas fa-car"></i>
-                        <span className="car-number">{message.userData.carNumber}</span>
+                        <span className="car-number">
+                          {message.userData?.data?.carNumber || message.userData?.carNumber || 'NO CAR NUMBER'}
+                        </span>
                       </div>
                     </div>
                     
                     <div className="action-buttons">
                       <button 
                         className="action-btn chat-btn"
-                        onClick={() => openPrivateChat(message.userData.name, message.userData.name)}
+                        onClick={() => openPrivateChat(message.userData?.data?.name || message.userData?.name, message.userData?.data?.name || message.userData?.name)}
                       >
-                        <i className="fas fa-comments"></i> Private Chat
+                        Private Chat
                       </button>
                       <button 
                         className="action-btn call-btn"
-                        onClick={() => initiatePrivateCall(message.userData.name, message.userData.name, message.userData.phone)}
+                        onClick={() => initiatePrivateCall(message.userData?.data?.name || message.userData?.name, message.userData?.data?.name || message.userData?.name, message.userData?.data?.phone || message.userData?.phone)}
                       >
-                        <i className="fas fa-phone"></i> Private Call
+                        Private Call
                       </button>
                       <button 
                         className="action-btn whatsapp-btn"
-                        onClick={() => window.open(message.userData.whatsapp, '_blank')}
+                        onClick={() => window.open(message.userData?.data?.whatsapp || message.userData?.whatsapp, '_blank')}
                       >
-                        <i className="fab fa-whatsapp"></i> WhatsApp
+                        WhatsApp
                       </button>
                     </div>
                     

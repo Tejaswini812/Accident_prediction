@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import apiClient from '../config/axios'
 
-const AddProducts = ({ onClose }) => {
+const AddProducts = ({ onClose, onAuthRequired, isInline = false }) => {
+  const { isAuthenticated } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -51,6 +53,13 @@ const AddProducts = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Check if user is authenticated before submitting
+    if (!isAuthenticated) {
+      onAuthRequired('Add Products')
+      return
+    }
+    
     setLoading(true)
 
     try {
@@ -83,14 +92,16 @@ const AddProducts = ({ onClose }) => {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="product-form-modal">
-        <div className="modal-header">
-          <h2>Add Products</h2>
-          <button className="close-btn" onClick={onClose}>
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
+    <div className={isInline ? "inline-form" : "modal-overlay"}>
+      <div className={isInline ? "product-form-inline" : "product-form-modal"}>
+        {!isInline && (
+          <div className="modal-header">
+            <h2>Add Products</h2>
+            <button className="close-btn" onClick={onClose}>
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="product-form">
           <div className="form-section">

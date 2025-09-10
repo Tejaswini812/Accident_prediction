@@ -133,7 +133,13 @@ const CarResellingSection = () => {
 
   return (
     <div className="car-reselling-section" id="car-reselling">
-      <h2 style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.2rem', margin: '2rem 0 1rem 0', color: '#1e293b' }}>Zoom Car/ CAR Resale EXPO</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '2rem 0 1rem 0' }}>
+        <h2 style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.2rem', color: '#1e293b', margin: '0' }}>Zoom Car/ CAR Resale EXPO</h2>
+        <a href="#" className="view-all-link" onClick={(e) => {
+          e.preventDefault()
+          alert(`Viewing all ${cars.length} cars:\n\n${cars.map(c => `• ${c.name} - ${c.year} - ${c.price}`).join('\n')}`)
+        }}>View All →</a>
+      </div>
       <div className="cars-section">
         <div className="cars-grid" id="cars-grid" style={{ 
           display: 'flex', 

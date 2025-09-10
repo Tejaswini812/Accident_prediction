@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import '../styles/Signup.css'
 
 const Signup = () => {
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [statusMessage, setStatusMessage] = useState({ text: '', type: '' })
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,7 +14,6 @@ const Signup = () => {
     referral: '',
     companyLink: ''
   })
-  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
     setFormData({
@@ -20,16 +22,49 @@ const Signup = () => {
     })
   }
 
+  const showStatusMessage = (message, type) => {
+    setStatusMessage({ text: message, type })
+    setTimeout(() => setStatusMessage({ text: '', type: '' }), 5000)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setStatusMessage({ text: '', type: '' })
 
-    // Simulate API call
-    setTimeout(() => {
-      alert('Signup successful! Your UserID has been activated.')
-      navigate('/')
+    try {
+      // Check if user already exists in CSV data
+      const response = await fetch('/api/user')
+      const users = await response.json()
+      
+      // Find user by name or email
+      const existingUser = users.find(user => 
+        user.data.name.toLowerCase() === formData.name.toLowerCase() ||
+        user.data.email.toLowerCase() === formData.email.toLowerCase()
+      )
+
+      if (existingUser) {
+        showStatusMessage(`Welcome back! Your UserID ${existingUser.data.id} is already activated.`, 'success')
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          carNumber: '',
+          referral: '',
+          companyLink: ''
+        })
+        setTimeout(() => navigate('/'), 2000)
+      } else {
+        // User not found in CSV - show available UserIDs
+        const availableUserIds = users.slice(0, 5).map(user => user.data.id).join(', ')
+        showStatusMessage(`User not found in our records. Available UserIDs: ${availableUserIds}. Please contact admin to add your details.`, 'error')
+      }
+    } catch (error) {
+      showStatusMessage('Error connecting to server. Please try again.', 'error')
+      console.error('Signup error:', error)
+    } finally {
       setLoading(false)
-    }, 2000)
+    }
   }
 
   return (
@@ -40,8 +75,10 @@ const Signup = () => {
       </div>
 
       <div className="auth-container">
-        <h2 className="form-title">Create an Account</h2>
-        <form onSubmit={handleSubmit} id="signupForm">
+        <h2 className="form-title">Activate Your User ID</h2>
+        <p className="form-description">Enter your details to activate your existing User ID</p>
+        <form onSubmit={handleSubmit}>
+          {/* Name */}
           <div className="form-group">
             <label htmlFor="name">Name <span className="required">*</span></label>
             <input
@@ -55,6 +92,7 @@ const Signup = () => {
             />
           </div>
 
+          {/* Email */}
           <div className="form-group">
             <label htmlFor="email">Email Address <span className="required">*</span></label>
             <input
@@ -68,6 +106,7 @@ const Signup = () => {
             />
           </div>
 
+          {/* Phone */}
           <div className="form-group">
             <label htmlFor="phone">Phone Number <span className="required">*</span></label>
             <input
@@ -81,6 +120,7 @@ const Signup = () => {
             />
           </div>
 
+          {/* Car Number */}
           <div className="form-group">
             <label htmlFor="carNumber">Car Number <span className="required">*</span></label>
             <input
@@ -94,6 +134,7 @@ const Signup = () => {
             />
           </div>
 
+          {/* Referral ID */}
           <div className="form-group">
             <label htmlFor="referral">Referral ID</label>
             <input
@@ -102,10 +143,11 @@ const Signup = () => {
               name="referral"
               value={formData.referral}
               onChange={handleChange}
-              placeholder="Enter referral ID(optional)"
+              placeholder="Enter referral ID (optional)"
             />
           </div>
 
+          {/* Company/LinkedIn Link */}
           <div className="form-group">
             <label htmlFor="companyLink">Company/LinkedIn Link</label>
             <input
@@ -114,18 +156,25 @@ const Signup = () => {
               name="companyLink"
               value={formData.companyLink}
               onChange={handleChange}
-              placeholder="Enter company or LinkedIn link(optional)"
+              placeholder="Enter company or LinkedIn link (optional)"
             />
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Submitting...' : 'Sign Up'}
+            {loading ? 'Activating...' : 'Activate User ID'}
           </button>
         </form>
 
         <div className="links">
-          <a href="#" onClick={() => navigate('/')}>Go to Dashboard</a>
+          <a href="/dashboard">Go to Dashboard</a>
         </div>
+        
+        {/* Status message container */}
+        {statusMessage.text && (
+          <div className={`status-message ${statusMessage.type}`}>
+            {statusMessage.text}
+          </div>
+        )}
       </div>
     </div>
   )

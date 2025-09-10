@@ -11,5 +11,17 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Suppress ajax tracer warnings from browser extensions
+      if (window.console && window.console.warn) {
+        const originalWarn = window.console.warn;
+        window.console.warn = function(...args) {
+          if (args[0] && typeof args[0] === 'string' && args[0].includes('ajaxTracer')) {
+            return; // Suppress ajax tracer warnings
+          }
+          originalWarn.apply(console, args);
+        };
+      }
+    </script>
   </body>
 </html>

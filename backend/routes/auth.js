@@ -91,7 +91,16 @@ router.post('/register', (req, res, next) => {
       console.log('No files received');
     }
     
-    const { name, email, phone, password, governmentProofType, governmentProofNumber, address } = req.body;
+    const { name, email, phone, password, governmentProofType, governmentProofNumber, address: addressString } = req.body;
+    
+    // Parse address if it's a JSON string
+    let address;
+    try {
+      address = typeof addressString === 'string' ? JSON.parse(addressString) : addressString;
+    } catch (error) {
+      console.log('Address parsing error:', error);
+      address = addressString; // Use as string if parsing fails
+    }
 
     // Validate required fields
     console.log('Validating fields:');

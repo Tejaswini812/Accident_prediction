@@ -78,7 +78,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
         end: new Date(new Date(date + ' ' + time).getTime() + (parseInt(duration) * 60 * 60 * 1000))
       },
       capacity: parseInt(capacity) || 100,
-      organizer: new mongoose.Types.ObjectId(), // Generate a new ObjectId for now
+      organizer: new mongoose.Types.ObjectId('507f1f77bcf86cd799439011'), // Use a default ObjectId for now
       contactInfo: contactInfo ? JSON.parse(contactInfo) : {},
       images: imagePaths
     })
