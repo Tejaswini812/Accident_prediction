@@ -14,6 +14,7 @@ import MultiStepLandPropertyForm from '../components/MultiStepLandPropertyForm'
 import MultiStepProductForm from '../components/MultiStepProductForm'
 import MultiStepPackageForm from '../components/MultiStepPackageForm'
 import MultiStepCarForm from '../components/MultiStepCarForm'
+import HostListings from '../components/HostListings'
 
 const Dashboard = () => {
   const { user, login, logout, isAuthenticated, loading } = useAuth()
@@ -290,6 +291,9 @@ const Dashboard = () => {
                     <button className="action-btn">Sell Car</button>
                   </div>
                 </div>
+                
+                {/* Host Listings Section */}
+                <HostListings user={user} isAuthenticated={isAuthenticated} />
               </div>
             ) : (
               <div className="form-container">

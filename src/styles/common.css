@@ -460,18 +460,34 @@ body, html {
 }
 
 .packages-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding: 0 1rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.packages-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .package-card {
+  min-width: calc(50% - 0.5rem);
+  max-width: calc(50% - 0.5rem);
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .package-card:hover {
@@ -518,6 +534,79 @@ body, html {
   font-weight: bold;
   color: #1e293b;
   margin-bottom: 1rem;
+}
+
+/* Responsive Design for Packages */
+@media (min-width: 768px) {
+  .packages-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
+  
+  .package-card {
+    min-width: auto;
+    max-width: none;
+    flex-shrink: 1;
+  }
+}
+
+/* Mobile-specific styles for packages */
+@media (max-width: 767px) {
+  .packages-grid {
+    display: flex !important;
+    gap: 0.5rem !important;
+    overflow-x: auto !important;
+    scroll-behavior: smooth !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    padding: 0 0.5rem !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .packages-grid::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  .package-card {
+    min-width: calc(50% - 0.25rem) !important;
+    max-width: calc(50% - 0.25rem) !important;
+    flex-shrink: 0 !important;
+    scroll-snap-align: start !important;
+    padding: 0.5rem !important;
+  }
+  
+  .package-image {
+    height: 120px !important;
+  }
+  
+  .package-title {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  .package-destination {
+    font-size: 0.8rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  .package-duration {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  .package-price {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .view-details-btn {
+    padding: 0.5rem !important;
+    font-size: 0.8rem !important;
+  }
 }
 
 .view-details-btn {

@@ -10,6 +10,7 @@
 @import './styles/chatbot.css';
 @import './styles/promotional.css';
 @import './styles/dashboard.css';
+@import './styles/host-listings.css';
 @import './styles/html-reference.css';
 @tailwind base;
 @tailwind components;
