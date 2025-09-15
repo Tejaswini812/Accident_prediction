@@ -8,6 +8,7 @@ const MultiStepCarForm = ({ onClose, onAuthRequired }) => {
   const [formData, setFormData] = useState({})
   const [uploadedImages, setUploadedImages] = useState([])
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const { isAuthenticated, user } = useAuth()
 
   const steps = [
@@ -18,6 +19,18 @@ const MultiStepCarForm = ({ onClose, onAuthRequired }) => {
     { id: 'car-media', title: 'Car Media', icon: 'fas fa-camera' },
     { id: 'car-documents', title: 'Documents', icon: 'fas fa-file-alt' }
   ]
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleStepClick = (stepId) => {
     setCurrentStep(stepId)
@@ -559,26 +572,302 @@ const MultiStepCarForm = ({ onClose, onAuthRequired }) => {
       </div>
       
       <div className="step-content">
-        {renderStepContent()}
-        
-        <div className="form-navigation">
-          <div className="nav-buttons">
-            {currentStep === 'car-documents' && (
-              <button 
-                type="button" 
-                className="nav-btn submit-btn"
-                onClick={handleSubmit}
-              >
-                <i className="fas fa-check"></i>
+        {/* Mobile: Show all steps at once, Desktop: Show current step */}
+        {isMobile ? (
+          // Mobile: Show all steps in one scrollable form
+          <div className="mobile-all-steps">
+            <div className="form-header-mobile">
+              <h2>Car Reselling</h2>
+            </div>
+            
+            {/* Car Information */}
+            <div className="step-form">
+              <h3>Car Information</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Make *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter car make"
+                    value={formData.make || ''}
+                    onChange={(e) => handleInputChange('make', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Model *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter car model"
+                    value={formData.model || ''}
+                    onChange={(e) => handleInputChange('model', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Variant</label>
+                <input
+                  type="text"
+                  placeholder="Enter variant (optional)"
+                  value={formData.variant || ''}
+                  onChange={(e) => handleInputChange('variant', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Car Details */}
+            <div className="step-form">
+              <h3>Car Details</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Year *</label>
+                  <input
+                    type="number"
+                    placeholder="Enter year"
+                    value={formData.year || ''}
+                    onChange={(e) => handleInputChange('year', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Mileage (km) *</label>
+                  <input
+                    type="number"
+                    placeholder="Enter mileage"
+                    value={formData.mileage || ''}
+                    onChange={(e) => handleInputChange('mileage', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Color</label>
+                  <input
+                    type="text"
+                    placeholder="Enter color"
+                    value={formData.color || ''}
+                    onChange={(e) => handleInputChange('color', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Transmission</label>
+                  <select
+                    value={formData.transmission || ''}
+                    onChange={(e) => handleInputChange('transmission', e.target.value)}
+                  >
+                    <option value="">Select Transmission</option>
+                    <option value="manual">Manual</option>
+                    <option value="automatic">Automatic</option>
+                    <option value="semi-automatic">Semi-Automatic</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Specifications */}
+            <div className="step-form">
+              <h3>Specifications</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Engine *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., 1.5L Turbo"
+                    value={formData.engine || ''}
+                    onChange={(e) => handleInputChange('engine', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Fuel Type *</label>
+                  <select
+                    value={formData.fuelType || ''}
+                    onChange={(e) => handleInputChange('fuelType', e.target.value)}
+                  >
+                    <option value="">Select Fuel Type</option>
+                    <option value="petrol">Petrol</option>
+                    <option value="diesel">Diesel</option>
+                    <option value="electric">Electric</option>
+                    <option value="hybrid">Hybrid</option>
+                    <option value="cng">CNG</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Seating Capacity</label>
+                  <input
+                    type="number"
+                    placeholder="Enter seating capacity"
+                    value={formData.seatingCapacity || ''}
+                    onChange={(e) => handleInputChange('seatingCapacity', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Body Type</label>
+                  <select
+                    value={formData.bodyType || ''}
+                    onChange={(e) => handleInputChange('bodyType', e.target.value)}
+                  >
+                    <option value="">Select Body Type</option>
+                    <option value="hatchback">Hatchback</option>
+                    <option value="sedan">Sedan</option>
+                    <option value="suv">SUV</option>
+                    <option value="muv">MUV</option>
+                    <option value="coupe">Coupe</option>
+                    <option value="convertible">Convertible</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing & Finance */}
+            <div className="step-form">
+              <h3>Pricing & Finance</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Expected Price *</label>
+                  <input
+                    type="number"
+                    placeholder="Enter expected price"
+                    value={formData.price || ''}
+                    onChange={(e) => handleInputChange('price', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Currency *</label>
+                  <select
+                    value={formData.currency || ''}
+                    onChange={(e) => handleInputChange('currency', e.target.value)}
+                  >
+                    <option value="">Select Currency</option>
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Negotiable</label>
+                <select
+                  value={formData.negotiable || ''}
+                  onChange={(e) => handleInputChange('negotiable', e.target.value)}
+                >
+                  <option value="">Select</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Car Media */}
+            <div className="step-form">
+              <h3>Car Media</h3>
+              <div className="form-group">
+                <label>Car Images</label>
+                <div className="upload-area">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                    id="car-image-upload"
+                  />
+                  <label htmlFor="car-image-upload" className="upload-label">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                    <span>Click to upload images</span>
+                  </label>
+                </div>
+                {uploadedImages.length > 0 && (
+                  <div className="image-preview">
+                    {uploadedImages.map((image, index) => (
+                      <div key={index} className="preview-item">
+                        <img src={image.preview} alt={`Preview ${index + 1}`} />
+                        <button
+                          type="button"
+                          className="remove-image"
+                          onClick={() => removeImage(index)}
+                        >
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Documents */}
+            <div className="step-form">
+              <h3>Documents</h3>
+              <div className="form-group">
+                <label>RC Status</label>
+                <select
+                  value={formData.rcStatus || ''}
+                  onChange={(e) => handleInputChange('rcStatus', e.target.value)}
+                >
+                  <option value="">Select RC Status</option>
+                  <option value="clear">Clear</option>
+                  <option value="pending">Pending</option>
+                  <option value="duplicate">Duplicate</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Insurance Status</label>
+                <select
+                  value={formData.insuranceStatus || ''}
+                  onChange={(e) => handleInputChange('insuranceStatus', e.target.value)}
+                >
+                  <option value="">Select Insurance Status</option>
+                  <option value="valid">Valid</option>
+                  <option value="expired">Expired</option>
+                  <option value="not-available">Not Available</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Additional Notes</label>
+                <textarea
+                  placeholder="Any additional information about the car..."
+                  value={formData.notes || ''}
+                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="form-actions">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleSubmit}>
                 Sell Car
               </button>
-            )}
+            </div>
           </div>
-          
-          <div className="form-progress">
-            <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
-          </div>
-        </div>
+        ) : (
+          // Desktop: Show current step only
+          <React.Fragment>
+            {renderStepContent()}
+            
+            <div className="form-navigation">
+              <div className="nav-buttons">
+                {currentStep === 'car-documents' && (
+                  <button 
+                    type="button" 
+                    className="nav-btn submit-btn"
+                    onClick={handleSubmit}
+                  >
+                    <i className="fas fa-check"></i>
+                    Sell Car
+                  </button>
+                )}
+              </div>
+              
+              <div className="form-progress">
+                <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
+              </div>
+            </div>
+          </React.Fragment>
+        )}
       </div>
       </div>
       

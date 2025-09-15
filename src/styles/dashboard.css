@@ -198,11 +198,11 @@ body, html {
     position: relative !important;
   }
   
-  /* Mobile Action Cards - 2 per row with smaller size */
+  /* Mobile Action Cards - 2 per row with horizontal layout */
   .action-cards {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
-    gap: 0.75rem !important;
+    gap: 0.6rem !important;
     padding: 0.5rem !important;
     background: rgba(255, 0, 0, 0.1) !important; /* Debug: Red background to see if mobile styles apply */
   }
@@ -210,18 +210,21 @@ body, html {
   .action-card {
     padding: 0.8rem !important;
     margin: 0 !important;
-    min-height: 130px !important;
+    min-height: 80px !important;
     border-radius: 8px !important;
     display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.8rem !important;
     min-width: 0 !important;
   }
   
   .action-icon {
     width: 32px !important;
     height: 32px !important;
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0 !important;
   }
   
   .action-icon i {
@@ -232,14 +235,19 @@ body, html {
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
+    align-items: flex-start !important;
     justify-content: center !important;
+    text-align: left !important;
   }
   
   .action-content h3 {
     font-size: 0.8rem !important;
-    margin: 0 0 0.5rem 0 !important;
+    margin: 0 !important;
     line-height: 1.2 !important;
-    text-align: center !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
   
   .action-btn,
@@ -1627,6 +1635,21 @@ body, html {
   transition: all 0.3s ease;
 }
 
+/* Reduce Edit Profile button width on laptop view only */
+@media (min-width: 769px) {
+  .profile-actions {
+    width: auto !important;
+    justify-content: flex-start !important;
+  }
+  
+  .edit-profile-btn {
+    flex: none !important;
+    width: auto !important;
+    max-width: 150px !important;
+    min-width: 120px !important;
+  }
+}
+
 .settings-btn {
   background: white;
   color: #374151;
@@ -2160,11 +2183,12 @@ body, html {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e5e7eb;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1.5rem;
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  min-height: 120px;
 }
 
 .action-card::before {
@@ -2204,6 +2228,10 @@ body, html {
 
 .action-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 60px;
 }
 
 .action-content h3 {
@@ -2218,7 +2246,7 @@ body, html {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
@@ -2230,12 +2258,427 @@ body, html {
   line-height: 1.2;
   white-space: normal;
   text-align: center;
-  min-width: 100px;
+  min-width: 120px;
+  max-width: 150px;
 }
 
 .action-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+/* Laptop View - Ensure buttons are fully visible - Higher specificity */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .action-cards {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem !important;
+    padding: 2rem !important;
+  }
+  
+  .action-card {
+    min-height: 145px !important;
+    max-height: 145px !important;
+    padding: 1.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.8rem !important;
+    overflow: visible !important;
+    text-align: center !important;
+    aspect-ratio: 3.5 !important;
+  }
+  
+  .action-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.8rem !important;
+    text-align: center !important;
+  }
+  
+  .action-btn,
+  .dashboard-main .action-card .action-btn,
+  .action-cards .action-card .action-btn,
+  .dashboard-main .action-cards .action-card .action-btn {
+    width: 100% !important;
+    height: 45px !important;
+    min-width: 120px !important;
+    max-width: 150px !important;
+    min-height: 45px !important;
+    max-height: 45px !important;
+    padding: 0.5rem !important;
+    font-size: 0.9rem !important;
+    white-space: nowrap !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Mobile View - Make buttons smaller for phone */
+@media (max-width: 768px) {
+  .action-cards {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.6rem !important;
+    padding: 0.8rem !important;
+  }
+  
+  .action-card {
+    min-height: 80px !important;
+    max-height: 80px !important;
+    padding: 0.8rem !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.8rem !important;
+    overflow: visible !important;
+    text-align: left !important;
+  }
+  
+  .action-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    text-align: left !important;
+    flex: 1 !important;
+  }
+  
+  /* Hide all buttons by default on mobile */
+  .action-btn,
+  .dashboard-main .action-card .action-btn,
+  .action-cards .action-card .action-btn {
+    display: none !important;
+  }
+  
+  /* Show buttons only for bottom 3 cards on mobile */
+  .action-card:nth-child(4) .action-btn,
+  .action-card:nth-child(5) .action-btn,
+  .action-card:nth-child(6) .action-btn {
+    display: flex !important;
+    width: 100% !important;
+    height: 35px !important;
+    min-width: 80px !important;
+    max-width: 120px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    padding: 0.5rem !important;
+    font-size: 0.7rem !important;
+    white-space: nowrap !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Mobile Form Popup Styles */
+  .form-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
+  }
+  
+  .multistep-form {
+    background: white !important;
+    border-radius: 15px !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  
+  .multistep-form::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  /* Remove any green borders on mobile forms */
+  .multistep-form,
+  .multistep-form *,
+  .multistep-form::before,
+  .multistep-form::after,
+  .multistep-form *::before,
+  .multistep-form *::after {
+    border: none !important;
+    border-color: transparent !important;
+    border-right: none !important;
+    border-left: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-right-color: transparent !important;
+    border-left-color: transparent !important;
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Specifically target the mobile form container */
+  .form-container .multistep-form {
+    border: none !important;
+    outline: none !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  /* Target the form container itself */
+  .form-container {
+    border: none !important;
+    outline: none !important;
+  }
+  
+  /* Target any potential scrollbar styling */
+  .multistep-form::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+  
+  .multistep-form::-webkit-scrollbar-thumb {
+    background: transparent !important;
+  }
+  
+  .multistep-form::-webkit-scrollbar-corner {
+    background: transparent !important;
+  }
+  
+  /* Force remove any green borders from all elements */
+  * {
+    border-color: transparent !important;
+  }
+  
+  /* Specific targeting for mobile form elements */
+  .form-container[style*="position: fixed"] .multistep-form,
+  .form-container[style*="position: fixed"] .multistep-form *,
+  .form-container[style*="position: fixed"] .multistep-form div,
+  .form-container[style*="position: fixed"] .multistep-form section,
+  .form-container[style*="position: fixed"] .multistep-form article {
+    border: none !important;
+    border-color: transparent !important;
+    border-right: none !important;
+    border-left: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Override any green borders specifically */
+  .multistep-form,
+  .multistep-form *,
+  .multistep-form div,
+  .multistep-form section,
+  .multistep-form article,
+  .multistep-form main,
+  .multistep-form aside,
+  .multistep-form header,
+  .multistep-form footer,
+  .multistep-form nav {
+    border: none !important;
+    border-color: transparent !important;
+    border-right: none !important;
+    border-left: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Restore proper input borders */
+  .multistep-form .form-group input,
+  .multistep-form .form-group select,
+  .multistep-form .form-group textarea {
+    border: 1px solid #d1d5db !important;
+  }
+  
+  .multistep-form .form-group input:focus,
+  .multistep-form .form-group select:focus,
+  .multistep-form .form-group textarea:focus {
+    border-color: #22c55e !important;
+  }
+  
+  /* Ensure form inputs have proper borders */
+  .multistep-form .form-group input,
+  .multistep-form .form-group select,
+  .multistep-form .form-group textarea {
+    border: 1px solid #d1d5db !important;
+  }
+  
+  .multistep-form .form-group input:focus,
+  .multistep-form .form-group select:focus,
+  .multistep-form .form-group textarea:focus {
+    border-color: #22c55e !important;
+  }
+  
+  .step-navigation {
+    display: none !important;
+  }
+  
+  /* Hide step indicators on mobile */
+  .step-content::after {
+    display: none !important;
+  }
+  
+  /* Remove step counter */
+  .step-form::after {
+    display: none !important;
+  }
+  
+  /* Hide step progress indicator on mobile */
+  .form-progress {
+    display: none !important;
+  }
+  
+  /* Hide navigation buttons on mobile */
+  .form-actions .btn:not(.btn-primary):not(.btn-secondary) {
+    display: none !important;
+  }
+  
+  .step-content {
+    width: 100% !important;
+    padding: 1.5rem !important;
+    flex: 1 !important;
+  }
+  
+  /* Show all form steps at once on mobile - Override step visibility */
+  .multistep-form .step-content > div {
+    display: block !important;
+    margin-bottom: 2rem !important;
+  }
+  
+  /* Add spacing between sections */
+  .step-form {
+    margin-bottom: 2rem !important;
+    padding-bottom: 1.5rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+  
+  .step-form:last-child {
+    border-bottom: none !important;
+  }
+  
+  .step-form h3 {
+    font-size: 1.2rem !important;
+    margin-bottom: 1rem !important;
+    color: #22c55e !important;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem !important;
+  }
+  
+  .form-group label {
+    display: block !important;
+    margin-bottom: 0.5rem !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    transition: border-color 0.3s ease !important;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none !important;
+    border-color: #22c55e !important;
+  }
+  
+  .form-actions {
+    display: flex !important;
+    gap: 1rem !important;
+    justify-content: flex-end !important;
+    margin-top: 2rem !important;
+    padding-top: 1rem !important;
+    border-top: 1px solid #e5e7eb !important;
+  }
+  
+  .btn {
+    padding: 0.75rem 1.5rem !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .btn-primary {
+    background: #22c55e !important;
+    color: white !important;
+  }
+  
+  .btn-secondary {
+    background: #6b7280 !important;
+    color: white !important;
+  }
+  
+  .close-form-btn {
+    position: absolute !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    background: #ef4444 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    font-size: 1.2rem !important;
+  }
+  
+  /* Mobile form styling */
+  .mobile-all-steps {
+    width: 100% !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+  }
+  
+  .form-header-mobile {
+    background: #22c55e !important;
+    color: white !important;
+    padding: 1rem 1.5rem !important;
+    margin: -1.5rem -1.5rem 2rem -1.5rem !important;
+    text-align: center !important;
+  }
+  
+  .form-header-mobile h2 {
+    margin: 0 !important;
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+  }
 }
 
 /* Responsive Design */

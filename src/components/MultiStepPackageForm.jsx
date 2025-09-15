@@ -8,6 +8,7 @@ const MultiStepPackageForm = ({ onClose, onAuthRequired }) => {
   const [formData, setFormData] = useState({})
   const [uploadedImages, setUploadedImages] = useState([])
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const { isAuthenticated, user } = useAuth()
 
   const steps = [
@@ -18,6 +19,18 @@ const MultiStepPackageForm = ({ onClose, onAuthRequired }) => {
     { id: 'package-media', title: 'Package Media', icon: 'fas fa-camera' },
     { id: 'package-terms', title: 'Terms & Conditions', icon: 'fas fa-file-contract' }
   ]
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleStepClick = (stepId) => {
     setCurrentStep(stepId)
@@ -461,26 +474,254 @@ const MultiStepPackageForm = ({ onClose, onAuthRequired }) => {
       </div>
       
       <div className="step-content">
-        {renderStepContent()}
-        
-        <div className="form-navigation">
-          <div className="nav-buttons">
-            {currentStep === 'package-terms' && (
-              <button 
-                type="button" 
-                className="nav-btn submit-btn"
-                onClick={handleSubmit}
-              >
-                <i className="fas fa-check"></i>
+        {/* Mobile: Show all steps at once, Desktop: Show current step */}
+        {isMobile ? (
+          // Mobile: Show all steps in one scrollable form
+          <div className="mobile-all-steps">
+            <div className="form-header-mobile">
+              <h2>List Package/Trip</h2>
+            </div>
+            
+            {/* Package Information */}
+            <div className="step-form">
+              <h3>Package Information</h3>
+              <div className="form-group">
+                <label>Package Title *</label>
+                <input
+                  type="text"
+                  placeholder="Enter package title"
+                  value={formData.title || ''}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Duration (days) *</label>
+                  <input
+                    type="number"
+                    placeholder="Enter duration"
+                    value={formData.duration || ''}
+                    onChange={(e) => handleInputChange('duration', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Group Size</label>
+                  <input
+                    type="number"
+                    placeholder="Max group size"
+                    value={formData.groupSize || ''}
+                    onChange={(e) => handleInputChange('groupSize', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Package Details */}
+            <div className="step-form">
+              <h3>Package Details</h3>
+              <div className="form-group">
+                <label>Description *</label>
+                <textarea
+                  placeholder="Describe your package..."
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  rows="4"
+                />
+              </div>
+              <div className="form-group">
+                <label>Difficulty Level *</label>
+                <select
+                  value={formData.difficulty || ''}
+                  onChange={(e) => handleInputChange('difficulty', e.target.value)}
+                >
+                  <option value="">Select Difficulty</option>
+                  <option value="easy">Easy</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="challenging">Challenging</option>
+                  <option value="expert">Expert</option>
+                </select>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Departure City *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter departure city"
+                    value={formData.departureCity || ''}
+                    onChange={(e) => handleInputChange('departureCity', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Return City</label>
+                  <input
+                    type="text"
+                    placeholder="Return city (if different)"
+                    value={formData.returnCity || ''}
+                    onChange={(e) => handleInputChange('returnCity', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Itinerary */}
+            <div className="step-form">
+              <h3>Itinerary</h3>
+              <div className="form-group">
+                <label>Day-by-Day Itinerary *</label>
+                <textarea
+                  placeholder="Enter detailed itinerary for each day..."
+                  value={formData.itinerary ? formData.itinerary.join('\n\n') : ''}
+                  onChange={(e) => {
+                    const itinerary = e.target.value.split('\n\n').filter(day => day.trim())
+                    handleInputChange('itinerary', itinerary)
+                  }}
+                  rows="6"
+                />
+              </div>
+            </div>
+
+            {/* Pricing & Inclusions */}
+            <div className="step-form">
+              <h3>Pricing & Inclusions</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Price *</label>
+                  <input
+                    type="number"
+                    placeholder="Enter price"
+                    value={formData.price || ''}
+                    onChange={(e) => handleInputChange('price', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Currency *</label>
+                  <select
+                    value={formData.currency || ''}
+                    onChange={(e) => handleInputChange('currency', e.target.value)}
+                  >
+                    <option value="">Select Currency</option>
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>What's Included</label>
+                <textarea
+                  placeholder="List what's included in the package..."
+                  value={formData.inclusions || ''}
+                  onChange={(e) => handleInputChange('inclusions', e.target.value)}
+                  rows="3"
+                />
+              </div>
+              <div className="form-group">
+                <label>What's Not Included</label>
+                <textarea
+                  placeholder="List what's not included..."
+                  value={formData.exclusions || ''}
+                  onChange={(e) => handleInputChange('exclusions', e.target.value)}
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Package Media */}
+            <div className="step-form">
+              <h3>Package Media</h3>
+              <div className="form-group">
+                <label>Package Images</label>
+                <div className="upload-area">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                    id="package-image-upload"
+                  />
+                  <label htmlFor="package-image-upload" className="upload-label">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                    <span>Click to upload images</span>
+                  </label>
+                </div>
+                {uploadedImages.length > 0 && (
+                  <div className="image-preview">
+                    {uploadedImages.map((image, index) => (
+                      <div key={index} className="preview-item">
+                        <img src={image.preview} alt={`Preview ${index + 1}`} />
+                        <button
+                          type="button"
+                          className="remove-image"
+                          onClick={() => removeImage(index)}
+                        >
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Terms & Conditions */}
+            <div className="step-form">
+              <h3>Terms & Conditions</h3>
+              <div className="form-group">
+                <label>Booking Terms</label>
+                <textarea
+                  placeholder="Enter booking terms and conditions..."
+                  value={formData.bookingTerms || ''}
+                  onChange={(e) => handleInputChange('bookingTerms', e.target.value)}
+                  rows="4"
+                />
+              </div>
+              <div className="form-group">
+                <label>Cancellation Policy</label>
+                <textarea
+                  placeholder="Enter cancellation policy..."
+                  value={formData.cancellationPolicy || ''}
+                  onChange={(e) => handleInputChange('cancellationPolicy', e.target.value)}
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="form-actions">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleSubmit}>
                 List Package
               </button>
-            )}
+            </div>
           </div>
-          
-          <div className="form-progress">
-            <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
-          </div>
-        </div>
+        ) : (
+          // Desktop: Show current step only
+          <React.Fragment>
+            {renderStepContent()}
+            
+            <div className="form-navigation">
+              <div className="nav-buttons">
+                {currentStep === 'package-terms' && (
+                  <button 
+                    type="button" 
+                    className="nav-btn submit-btn"
+                    onClick={handleSubmit}
+                  >
+                    <i className="fas fa-check"></i>
+                    List Package
+                  </button>
+                )}
+              </div>
+              
+              <div className="form-progress">
+                <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
+              </div>
+            </div>
+          </React.Fragment>
+        )}
       </div>
       </div>
       

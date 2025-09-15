@@ -8,6 +8,7 @@ const MultiStepProductForm = ({ onClose, onAuthRequired }) => {
   const [formData, setFormData] = useState({})
   const [uploadedImages, setUploadedImages] = useState([])
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const { isAuthenticated, user } = useAuth()
 
   const steps = [
@@ -18,6 +19,18 @@ const MultiStepProductForm = ({ onClose, onAuthRequired }) => {
     { id: 'product-media', title: 'Product Media', icon: 'fas fa-camera' },
     { id: 'product-shipping', title: 'Shipping & Returns', icon: 'fas fa-shipping-fast' }
   ]
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleStepClick = (stepId) => {
     setCurrentStep(stepId)
@@ -502,6 +515,248 @@ const MultiStepProductForm = ({ onClose, onAuthRequired }) => {
       </div>
       
       <div className="step-content">
+        {/* Mobile: Show all steps at once, Desktop: Show current step */}
+        {isMobile ? (
+          // Mobile: Show all steps in one scrollable form
+          <div className="mobile-all-steps">
+            <div className="form-header-mobile">
+              <h2>Add Products</h2>
+            </div>
+            
+            {/* Product Information */}
+            <div className="step-form">
+              <h3>Product Information</h3>
+              <div className="form-group">
+                <label>Product Name *</label>
+                <input
+                  type="text"
+                  placeholder="Enter product name"
+                  value={formData.name || ''}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Category *</label>
+                <select
+                  value={formData.category || ''}
+                  onChange={(e) => handleInputChange('category', e.target.value)}
+                >
+                  <option value="">Select Category</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="clothing">Clothing</option>
+                  <option value="home">Home & Garden</option>
+                  <option value="sports">Sports</option>
+                  <option value="books">Books</option>
+                  <option value="beauty">Beauty</option>
+                  <option value="toys">Toys</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Product Details */}
+            <div className="step-form">
+              <h3>Product Details</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Brand *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter brand name"
+                    value={formData.brand || ''}
+                    onChange={(e) => handleInputChange('brand', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Model</label>
+                  <input
+                    type="text"
+                    placeholder="Enter model number"
+                    value={formData.model || ''}
+                    onChange={(e) => handleInputChange('model', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Description *</label>
+                <textarea
+                  placeholder="Describe your product..."
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  rows="4"
+                />
+              </div>
+              <div className="form-group">
+                <label>SKU</label>
+                <input
+                  type="text"
+                  placeholder="Enter SKU (optional)"
+                  value={formData.sku || ''}
+                  onChange={(e) => handleInputChange('sku', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Pricing & Inventory */}
+            <div className="step-form">
+              <h3>Pricing & Inventory</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Price *</label>
+                  <input
+                    type="number"
+                    placeholder="Enter price"
+                    value={formData.price || ''}
+                    onChange={(e) => handleInputChange('price', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Currency *</label>
+                  <select
+                    value={formData.currency || ''}
+                    onChange={(e) => handleInputChange('currency', e.target.value)}
+                  >
+                    <option value="">Select Currency</option>
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Stock Quantity</label>
+                  <input
+                    type="number"
+                    placeholder="Enter stock quantity"
+                    value={formData.stock || ''}
+                    onChange={(e) => handleInputChange('stock', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Weight (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="Enter weight"
+                    value={formData.weight || ''}
+                    onChange={(e) => handleInputChange('weight', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Category & Tags */}
+            <div className="step-form">
+              <h3>Category & Tags</h3>
+              <div className="form-group">
+                <label>Tags *</label>
+                <input
+                  type="text"
+                  placeholder="Enter tags separated by commas"
+                  value={formData.tags ? formData.tags.join(', ') : ''}
+                  onChange={(e) => {
+                    const tags = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+                    handleInputChange('tags', tags)
+                  }}
+                />
+              </div>
+              <div className="form-group">
+                <label>Subcategory</label>
+                <input
+                  type="text"
+                  placeholder="Enter subcategory"
+                  value={formData.subcategory || ''}
+                  onChange={(e) => handleInputChange('subcategory', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Product Media */}
+            <div className="step-form">
+              <h3>Product Media</h3>
+              <div className="form-group">
+                <label>Product Images</label>
+                <div className="upload-area">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                    id="product-image-upload"
+                  />
+                  <label htmlFor="product-image-upload" className="upload-label">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                    <span>Click to upload images</span>
+                  </label>
+                </div>
+                {uploadedImages.length > 0 && (
+                  <div className="image-preview">
+                    {uploadedImages.map((image, index) => (
+                      <div key={index} className="preview-item">
+                        <img src={image.preview} alt={`Preview ${index + 1}`} />
+                        <button
+                          type="button"
+                          className="remove-image"
+                          onClick={() => removeImage(index)}
+                        >
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Shipping & Returns */}
+            <div className="step-form">
+              <h3>Shipping & Returns</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Shipping Cost</label>
+                  <input
+                    type="number"
+                    placeholder="Enter shipping cost"
+                    value={formData.shippingCost || ''}
+                    onChange={(e) => handleInputChange('shippingCost', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Free Shipping Threshold</label>
+                  <input
+                    type="number"
+                    placeholder="Enter free shipping threshold"
+                    value={formData.freeShippingThreshold || ''}
+                    onChange={(e) => handleInputChange('freeShippingThreshold', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Return Policy</label>
+                <textarea
+                  placeholder="Describe your return policy"
+                  value={formData.returnPolicy || ''}
+                  onChange={(e) => handleInputChange('returnPolicy', e.target.value)}
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="form-actions">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleSubmit}>
+                Add Product
+              </button>
+            </div>
+          </div>
+        ) : (
+          // Desktop: Show current step only
+          <React.Fragment>
         {renderStepContent()}
         
         <div className="form-navigation">
@@ -522,6 +777,8 @@ const MultiStepProductForm = ({ onClose, onAuthRequired }) => {
             <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
           </div>
         </div>
+          </React.Fragment>
+        )}
       </div>
       </div>
       

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const PackagesSection = () => {
+  const navigate = useNavigate()
   const [packages, setPackages] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -60,18 +62,18 @@ const PackagesSection = () => {
         
         console.log('All transformed API packages:', apiPackages)
         
-        // Combine API packages with default packages
+        // Combine API packages with default packages and limit to first 10
         const combinedPackages = [...apiPackages, ...defaultPackages]
         console.log('Combined packages (API + default):', combinedPackages)
-        setPackages(combinedPackages)
+        setPackages(combinedPackages.slice(0, 10))
       } else {
         console.log('No packages in API response, using default packages')
-        setPackages(defaultPackages)
+        setPackages(defaultPackages.slice(0, 10))
       }
     } catch (error) {
       console.error('Error fetching packages:', error)
       console.log('Using fallback packages data')
-      setPackages(defaultPackages)
+      setPackages(defaultPackages.slice(0, 10))
     } finally {
       setLoading(false)
     }
@@ -123,7 +125,7 @@ const PackagesSection = () => {
           </div>
           <a href="#" className="view-all-link" onClick={(e) => {
             e.preventDefault()
-            alert(`Viewing all ${packages.length} packages:\n\n${packages.map(p => `• ${p.title} - ${p.destination} - ${p.price}`).join('\n')}`)
+            navigate('/packages')
           }}>View All →</a>
         </div>
       </div>

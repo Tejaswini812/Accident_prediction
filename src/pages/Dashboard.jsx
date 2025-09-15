@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import LoginForm from '../components/LoginForm'
 import SignupForm from '../components/SignupForm'
@@ -28,10 +28,30 @@ const Dashboard = () => {
   const [showAddProducts, setShowAddProducts] = useState(false)
   const [showListPackage, setShowListPackage] = useState(false)
   const [showCarReselling, setShowCarReselling] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const [selectedAction, setSelectedAction] = useState('')
   const [activeForm, setActiveForm] = useState(null)
   const [currentStep, setCurrentStep] = useState('')
   const [formData, setFormData] = useState({})
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Debug mobile modal state
+  useEffect(() => {
+    if (isMobile && activeForm) {
+      console.log('🔧 Mobile modal should be visible for:', activeForm)
+    }
+  }, [isMobile, activeForm])
 
   const handleAuthRequired = (action) => {
     setSelectedAction(action)
@@ -39,6 +59,9 @@ const Dashboard = () => {
   }
 
   const handleActionClick = (action) => {
+    console.log('🔧 Action clicked:', action)
+    console.log('🔧 Is mobile:', isMobile)
+    
     // Set the active form to show inline instead of modal
     setActiveForm(action)
     
@@ -64,6 +87,8 @@ const Dashboard = () => {
     } else if (action === 'Car Reselling') {
       setShowCarReselling(true)
     }
+    
+    console.log('🔧 Active form set to:', action)
   }
 
   const handleStepClick = (step) => {
@@ -228,7 +253,7 @@ const Dashboard = () => {
         <div className="dashboard-main-layout">
           {/* Full Width Content */}
           <div className="right-column" style={{ width: '100%' }}>
-            {!activeForm ? (
+            {!activeForm || isMobile ? (
               <div className="dashboard-main">
                 <div className="action-cards">
                   <div className="action-card" onClick={() => handleActionClick('Host a Property')}>
@@ -268,7 +293,6 @@ const Dashboard = () => {
                     <div className="action-content">
                       <h3>Create a Cart</h3>
                     </div>
-                    <button className="action-btn">Add Product</button>
                   </div>
 
                   <div className="action-card" onClick={() => handleActionClick('List Package/Trip')}>
@@ -278,7 +302,6 @@ const Dashboard = () => {
                     <div className="action-content">
                       <h3>List Package/Trip</h3>
                     </div>
-                    <button className="action-btn">List Package</button>
                   </div>
 
                   <div className="action-card" onClick={() => handleActionClick('Car Reselling')}>
@@ -288,7 +311,6 @@ const Dashboard = () => {
                     <div className="action-content">
                       <h3>Car Reselling</h3>
                     </div>
-                    <button className="action-btn">Sell Car</button>
                   </div>
                 </div>
                 
@@ -528,6 +550,90 @@ const Dashboard = () => {
                 </div>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Form Modals */}
+      {isMobile && activeForm && (
+        <div className="form-container" style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          width: '100%', 
+          height: '100%', 
+          backgroundColor: 'rgba(0,0,0,0.5)', 
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div className="multistep-form" style={{
+            backgroundColor: 'white',
+            borderRadius: '15px',
+            width: '100%',
+            maxWidth: '500px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+            margin: '1rem'
+          }}>
+            <button className="close-form-btn" onClick={handleCloseForm} style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              background: 'none',
+              border: 'none',
+              fontSize: '1.5rem',
+              cursor: 'pointer',
+              zIndex: 1001
+            }}>
+              <i className="fas fa-times"></i>
+            </button>
+            
+            {activeForm === 'Host a Property' && (
+              <MultiStepPropertyForm 
+                onClose={handleCloseForm} 
+                onAuthRequired={handleAuthRequired}
+              />
+            )}
+            
+            {activeForm === 'Launch Events' && (
+              <MultiStepEventForm 
+                onClose={handleCloseForm} 
+                onAuthRequired={handleAuthRequired}
+              />
+            )}
+            
+            {activeForm === 'Host a Land Property' && (
+              <MultiStepLandPropertyForm 
+                onClose={handleCloseForm} 
+                onAuthRequired={handleAuthRequired}
+              />
+            )}
+            
+            {activeForm === 'Add Products' && (
+              <MultiStepProductForm 
+                onClose={handleCloseForm} 
+                onAuthRequired={handleAuthRequired}
+              />
+            )}
+            
+            {activeForm === 'List Package/Trip' && (
+              <MultiStepPackageForm 
+                onClose={handleCloseForm} 
+                onAuthRequired={handleAuthRequired}
+              />
+            )}
+            
+            {activeForm === 'Car Reselling' && (
+              <MultiStepCarForm 
+                onClose={handleCloseForm} 
+                onAuthRequired={handleAuthRequired}
+              />
+            )}
           </div>
         </div>
       )}

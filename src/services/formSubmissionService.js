@@ -31,20 +31,47 @@ export const submitProperty = async (formData, images, token) => {
     // Use multipart endpoint to handle file uploads
     const formDataToSend = createFormData(formData, images)
     
-    const response = await fetch(`${API_BASE_URL}/hotels`, {
+    console.log('🔧 Form Submission Debug:')
+    console.log('- API Base URL:', API_BASE_URL)
+    console.log('- Full URL:', `${API_BASE_URL}/properties`)
+    console.log('- Form data:', formData)
+    console.log('- Images:', images)
+    console.log('- Token:', token ? 'Present' : 'Missing')
+    
+    // Log FormData contents
+    console.log('- FormData contents:')
+    for (let [key, value] of formDataToSend.entries()) {
+      console.log(`  ${key}: ${value}`)
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/properties`, {
       method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
       body: formDataToSend
     })
     
+    console.log('- Response status:', response.status)
+    console.log('- Response headers:', Object.fromEntries(response.headers.entries()))
+    
     if (!response.ok) {
-      const errorData = await response.json()
-      console.error('API Error:', errorData)
+      const errorText = await response.text()
+      console.error('❌ API Error Response:', errorText)
+      let errorData
+      try {
+        errorData = JSON.parse(errorText)
+      } catch (e) {
+        errorData = { message: errorText }
+      }
       throw new Error(`Failed to submit property: ${errorData.message || 'Unknown error'}`)
     }
     
-    return await response.json()
+    const result = await response.json()
+    console.log('✅ Success response:', result)
+    return result
   } catch (error) {
-    console.error('Error submitting property:', error)
+    console.error('❌ Error submitting property:', error)
     throw error
   }
 }

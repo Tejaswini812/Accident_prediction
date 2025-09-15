@@ -8,6 +8,7 @@ const MultiStepLandPropertyForm = ({ onClose, onAuthRequired }) => {
   const [formData, setFormData] = useState({})
   const [uploadedImages, setUploadedImages] = useState([])
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const { isAuthenticated, user } = useAuth()
 
   const steps = [
@@ -18,6 +19,18 @@ const MultiStepLandPropertyForm = ({ onClose, onAuthRequired }) => {
     { id: 'land-media', title: 'Land Media', icon: 'fas fa-camera' },
     { id: 'land-legal', title: 'Legal Documents', icon: 'fas fa-file-contract' }
   ]
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleStepClick = (stepId) => {
     setCurrentStep(stepId)
@@ -501,6 +514,223 @@ const MultiStepLandPropertyForm = ({ onClose, onAuthRequired }) => {
       </div>
       
       <div className="step-content">
+        {/* Mobile: Show all steps at once, Desktop: Show current step */}
+        {isMobile ? (
+          // Mobile: Show all steps in one scrollable form
+          <div className="mobile-all-steps">
+            <div className="form-header-mobile">
+              <h2>Host Land Property</h2>
+            </div>
+            
+            {/* Land Basic Information */}
+            <div className="step-form">
+              <h3>Land Basic Information</h3>
+              <div className="form-group">
+                <label>Property Title *</label>
+                <input
+                  type="text"
+                  placeholder="Enter property title"
+                  value={formData.title || ''}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Land Type *</label>
+                <select
+                  value={formData.landType || ''}
+                  onChange={(e) => handleInputChange('landType', e.target.value)}
+                >
+                  <option value="">Select Land Type</option>
+                  <option value="residential">Residential</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="agricultural">Agricultural</option>
+                  <option value="industrial">Industrial</option>
+                  <option value="mixed-use">Mixed Use</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Land Details */}
+            <div className="step-form">
+              <h3>Land Details</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Size (sq ft) *</label>
+                  <input
+                    type="number"
+                    placeholder="Enter size in sq ft"
+                    value={formData.size || ''}
+                    onChange={(e) => handleInputChange('size', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Dimensions</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., 50x100 ft"
+                    value={formData.dimensions || ''}
+                    onChange={(e) => handleInputChange('dimensions', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Description *</label>
+                <textarea
+                  placeholder="Describe your land property..."
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  rows="4"
+                />
+              </div>
+            </div>
+
+            {/* Pricing & Terms */}
+            <div className="step-form">
+              <h3>Pricing & Terms</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Price *</label>
+                  <input
+                    type="number"
+                    placeholder="Enter price"
+                    value={formData.price || ''}
+                    onChange={(e) => handleInputChange('price', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Currency *</label>
+                  <select
+                    value={formData.currency || ''}
+                    onChange={(e) => handleInputChange('currency', e.target.value)}
+                  >
+                    <option value="">Select Currency</option>
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Price Per Unit</label>
+                <input
+                  type="text"
+                  placeholder="e.g., ₹500 per sq ft"
+                  value={formData.pricePerUnit || ''}
+                  onChange={(e) => handleInputChange('pricePerUnit', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Location Details */}
+            <div className="step-form">
+              <h3>Location Details</h3>
+              <div className="form-group">
+                <label>Address *</label>
+                <textarea
+                  placeholder="Enter full address"
+                  value={formData.address || ''}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  rows="3"
+                />
+              </div>
+              <div className="form-group">
+                <label>City *</label>
+                <input
+                  type="text"
+                  placeholder="Enter city"
+                  value={formData.city || ''}
+                  onChange={(e) => handleInputChange('city', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>State</label>
+                <input
+                  type="text"
+                  placeholder="Enter state"
+                  value={formData.state || ''}
+                  onChange={(e) => handleInputChange('state', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Land Media */}
+            <div className="step-form">
+              <h3>Land Media</h3>
+              <div className="form-group">
+                <label>Land Images</label>
+                <div className="upload-area">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                    id="land-image-upload"
+                  />
+                  <label htmlFor="land-image-upload" className="upload-label">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                    <span>Click to upload images</span>
+                  </label>
+                </div>
+                {uploadedImages.length > 0 && (
+                  <div className="image-preview">
+                    {uploadedImages.map((image, index) => (
+                      <div key={index} className="preview-item">
+                        <img src={image.preview} alt={`Preview ${index + 1}`} />
+                        <button
+                          type="button"
+                          className="remove-image"
+                          onClick={() => removeImage(index)}
+                        >
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Legal Documents */}
+            <div className="step-form">
+              <h3>Legal Documents</h3>
+              <div className="form-group">
+                <label>Legal Status</label>
+                <select
+                  value={formData.legalStatus || ''}
+                  onChange={(e) => handleInputChange('legalStatus', e.target.value)}
+                >
+                  <option value="">Select Legal Status</option>
+                  <option value="freehold">Freehold</option>
+                  <option value="leasehold">Leasehold</option>
+                  <option value="power-of-attorney">Power of Attorney</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Additional Notes</label>
+                <textarea
+                  placeholder="Any additional information about legal documents..."
+                  value={formData.legalNotes || ''}
+                  onChange={(e) => handleInputChange('legalNotes', e.target.value)}
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="form-actions">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleSubmit}>
+                List Land Property
+              </button>
+            </div>
+          </div>
+        ) : (
+          // Desktop: Show current step only
+          <React.Fragment>
         {renderStepContent()}
         
         <div className="form-navigation">
@@ -521,6 +751,8 @@ const MultiStepLandPropertyForm = ({ onClose, onAuthRequired }) => {
             <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
           </div>
         </div>
+          </React.Fragment>
+        )}
       </div>
       </div>
       

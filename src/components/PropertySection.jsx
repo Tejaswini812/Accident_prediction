@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const PropertySection = () => {
+  const navigate = useNavigate()
   const [properties, setProperties] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -43,7 +45,7 @@ const PropertySection = () => {
         console.log('Property images:', property.images)
         
         // Better image URL handling
-        let imageUrl = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' // Default fallback
+        let imageUrl = 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop' // Default fallback
         
         if (property.images?.[0]) {
           const imagePath = property.images[0]
@@ -73,7 +75,7 @@ const PropertySection = () => {
       // Transform land properties data
       const transformedLandProperties = landPropertiesResponse.data?.map(landProperty => {
         // Better image URL handling for land properties
-        let imageUrl = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' // Default fallback
+        let imageUrl = 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop' // Default fallback
         
         if (landProperty.images?.[0]) {
           const imagePath = landProperty.images[0]
@@ -98,20 +100,20 @@ const PropertySection = () => {
         }
       }) || []
       
-      // Combine both types of properties
-      const allProperties = [...transformedProperties, ...transformedLandProperties]
+      // Combine both types of properties and limit to first 10
+      const allProperties = [...transformedProperties, ...transformedLandProperties].slice(0, 10)
       
       // Check if API returned empty array, use fallback data
       if (allProperties.length === 0) {
         console.log('API returned empty array, using fallback data')
-        setProperties([
+        const fallbackProperties = [
           {
             id: 1,
             name: "Luxury Villa",
             price: "₹1.15 Crores",
             area: "1,500 sqft",
             pricePerSqft: "₹7,666",
-            image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+            image: "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
           },
           {
             id: 2,
@@ -119,7 +121,7 @@ const PropertySection = () => {
             price: "₹1.15 Crores",
             area: "1,500 sqft",
             pricePerSqft: "₹7,666",
-            image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+            image: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
           },
           {
             id: 3,
@@ -127,7 +129,7 @@ const PropertySection = () => {
             price: "₹1.8 Crores",
             area: "2,000 sqft",
             pricePerSqft: "₹9,000",
-            image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+            image: "https://images.pexels.com/photos/323775/pexels-photo-323775.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
           },
           {
             id: 4,
@@ -135,7 +137,7 @@ const PropertySection = () => {
             price: "₹2.5 Crores",
             area: "2,200 sqft",
             pricePerSqft: "₹11,363",
-            image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+            image: "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
           },
           {
             id: 5,
@@ -143,9 +145,10 @@ const PropertySection = () => {
             price: "₹85 Lakhs",
             area: "1,800 sqft",
             pricePerSqft: "₹4,722",
-            image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+            image: "https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
           }
-        ])
+        ]
+        setProperties(fallbackProperties.slice(0, 10))
       } else {
         setProperties(allProperties)
       }
@@ -159,7 +162,7 @@ const PropertySection = () => {
           price: "₹1.15 Crores",
           area: "1,500 sqft",
           pricePerSqft: "₹7,666",
-          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          image: "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
         },
         {
           id: 2,
@@ -167,7 +170,7 @@ const PropertySection = () => {
           price: "₹1.15 Crores",
           area: "1,500 sqft",
           pricePerSqft: "₹7,666",
-          image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          image: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
         },
         {
           id: 3,
@@ -175,7 +178,7 @@ const PropertySection = () => {
           price: "₹1.8 Crores",
           area: "2,000 sqft",
           pricePerSqft: "₹9,000",
-          image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          image: "https://images.pexels.com/photos/323775/pexels-photo-323775.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
         },
         {
           id: 4,
@@ -183,7 +186,7 @@ const PropertySection = () => {
           price: "₹2.5 Crores",
           area: "2,200 sqft",
           pricePerSqft: "₹11,363",
-          image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          image: "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
         },
         {
           id: 5,
@@ -191,7 +194,7 @@ const PropertySection = () => {
           price: "₹85 Lakhs",
           area: "1,800 sqft",
           pricePerSqft: "₹4,722",
-          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+          image: "https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
         }
       ])
     } finally {
@@ -249,7 +252,7 @@ const PropertySection = () => {
           </div>
           <a href="#" className="view-all-link" onClick={(e) => {
             e.preventDefault()
-            alert(`Viewing all ${properties.length} properties:\n\n${properties.map(p => `• ${p.name} - ${p.price} - ${p.location}`).join('\n')}`)
+            navigate('/properties')
           }}>View All →</a>
         </div>
       </div>

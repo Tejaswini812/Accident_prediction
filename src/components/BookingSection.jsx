@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const BookingSection = () => {
+  const navigate = useNavigate()
   const [hotels, setHotels] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -178,7 +180,7 @@ const BookingSection = () => {
       <h2 className="rooms-title">Find Your Stay</h2>
         <a href="#" className="view-all-link" onClick={(e) => {
           e.preventDefault()
-          alert(`Viewing all ${hotels.length} hotels:\n\n${hotels.map(h => `• ${h.name} - ${h.location} - ₹${h.price}/night`).join('\n')}`)
+          navigate('/hotels')
         }}>View All →</a>
       </div>
       <div className="rooms-section">

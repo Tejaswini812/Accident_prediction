@@ -8,6 +8,7 @@ const MultiStepEventForm = ({ onClose, onAuthRequired }) => {
   const [formData, setFormData] = useState({})
   const [uploadedImages, setUploadedImages] = useState([])
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const { user, isAuthenticated } = useAuth()
 
   // Load saved form data on component mount
@@ -25,6 +26,18 @@ const MultiStepEventForm = ({ onClose, onAuthRequired }) => {
     savedForms.event = { formData, images: uploadedImages }
     localStorage.setItem('savedForms', JSON.stringify(savedForms))
   }, [formData, uploadedImages])
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const steps = [
     { id: 'event-info', title: 'Event Information', icon: 'fas fa-info-circle' },
@@ -479,26 +492,237 @@ const MultiStepEventForm = ({ onClose, onAuthRequired }) => {
       </div>
       
       <div className="step-content">
-        {renderStepContent()}
-        
-        <div className="form-navigation">
-          <div className="nav-buttons">
-            {currentStep === 'event-rules' && (
-              <button 
-                type="button" 
-                className="nav-btn submit-btn"
-                onClick={handleSubmit}
-              >
-                <i className="fas fa-check"></i>
+        {/* Mobile: Show all steps at once, Desktop: Show current step */}
+        {isMobile ? (
+          // Mobile: Show all steps in one scrollable form
+          <div className="mobile-all-steps">
+            <div className="form-header-mobile">
+              <h2>Launch Events</h2>
+            </div>
+            
+            {/* Event Information */}
+            <div className="step-form">
+              <h3>Event Information</h3>
+              <div className="form-group">
+                <label>Event Title *</label>
+                <input
+                  type="text"
+                  placeholder="Enter event title"
+                  value={formData.eventName || ''}
+                  onChange={(e) => handleInputChange('eventName', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Event Type *</label>
+                <select
+                  value={formData.eventType || ''}
+                  onChange={(e) => handleInputChange('eventType', e.target.value)}
+                >
+                  <option value="">Select Event Type</option>
+                  <option value="conference">Conference</option>
+                  <option value="workshop">Workshop</option>
+                  <option value="seminar">Seminar</option>
+                  <option value="meetup">Meetup</option>
+                  <option value="party">Party</option>
+                  <option value="concert">Concert</option>
+                  <option value="exhibition">Exhibition</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Event Details */}
+            <div className="step-form">
+              <h3>Event Details</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Event Date *</label>
+                  <input
+                    type="date"
+                    value={formData.eventDate || ''}
+                    onChange={(e) => handleInputChange('eventDate', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Start Time *</label>
+                  <input
+                    type="time"
+                    value={formData.startTime || ''}
+                    onChange={(e) => handleInputChange('startTime', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Description *</label>
+                <textarea
+                  placeholder="Describe your event..."
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  rows="4"
+                />
+              </div>
+              <div className="form-group">
+                <label>Capacity *</label>
+                <input
+                  type="number"
+                  placeholder="Maximum attendees"
+                  value={formData.capacity || ''}
+                  onChange={(e) => handleInputChange('capacity', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Event Location */}
+            <div className="step-form">
+              <h3>Event Location</h3>
+              <div className="form-group">
+                <label>Venue Name *</label>
+                <input
+                  type="text"
+                  placeholder="Enter venue name"
+                  value={formData.venue || ''}
+                  onChange={(e) => handleInputChange('venue', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Address *</label>
+                <textarea
+                  placeholder="Enter full address"
+                  value={formData.address || ''}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  rows="3"
+                />
+              </div>
+              <div className="form-group">
+                <label>City</label>
+                <input
+                  type="text"
+                  placeholder="Enter city"
+                  value={formData.city || ''}
+                  onChange={(e) => handleInputChange('city', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Pricing & Tickets */}
+            <div className="step-form">
+              <h3>Pricing & Tickets</h3>
+              <div className="form-group">
+                <label>Ticket Price (₹) *</label>
+                <input
+                  type="number"
+                  placeholder="Enter ticket price"
+                  value={formData.ticketPrice || ''}
+                  onChange={(e) => handleInputChange('ticketPrice', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Early Bird Price (₹)</label>
+                <input
+                  type="number"
+                  placeholder="Early bird discount price"
+                  value={formData.earlyBirdPrice || ''}
+                  onChange={(e) => handleInputChange('earlyBirdPrice', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Event Media */}
+            <div className="step-form">
+              <h3>Event Media</h3>
+              <div className="form-group">
+                <label>Event Images</label>
+                <div className="upload-area">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                    id="event-image-upload"
+                  />
+                  <label htmlFor="event-image-upload" className="upload-label">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                    <span>Click to upload images</span>
+                  </label>
+                </div>
+                {uploadedImages.length > 0 && (
+                  <div className="image-preview">
+                    {uploadedImages.map((image, index) => (
+                      <div key={index} className="preview-item">
+                        <img src={image.preview} alt={`Preview ${index + 1}`} />
+                        <button
+                          type="button"
+                          className="remove-image"
+                          onClick={() => removeImage(index)}
+                        >
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Event Rules */}
+            <div className="step-form">
+              <h3>Event Rules</h3>
+              <div className="form-group">
+                <label>Terms & Conditions</label>
+                <textarea
+                  placeholder="Enter terms and conditions..."
+                  value={formData.terms || ''}
+                  onChange={(e) => handleInputChange('terms', e.target.value)}
+                  rows="4"
+                />
+              </div>
+              <div className="form-group">
+                <label>Additional Rules</label>
+                <textarea
+                  placeholder="Any additional rules or restrictions..."
+                  value={formData.rules || ''}
+                  onChange={(e) => handleInputChange('rules', e.target.value)}
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="form-actions">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleSubmit}>
                 Create Event
               </button>
-            )}
+            </div>
           </div>
-          
-          <div className="form-progress">
-            <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
-          </div>
-        </div>
+        ) : (
+          // Desktop: Show current step only
+          <React.Fragment>
+            {renderStepContent()}
+            
+            <div className="form-navigation">
+              <div className="nav-buttons">
+                {currentStep === 'event-rules' && (
+                  <button 
+                    type="button" 
+                    className="nav-btn submit-btn"
+                    onClick={handleSubmit}
+                  >
+                    <i className="fas fa-check"></i>
+                    Create Event
+                  </button>
+                )}
+              </div>
+              
+              <div className="form-progress">
+                <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
+              </div>
+            </div>
+          </React.Fragment>
+        )}
       </div>
       </div>
       

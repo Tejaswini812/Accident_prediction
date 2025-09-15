@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const EventsSection = () => {
+  const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -84,18 +86,18 @@ const EventsSection = () => {
         
         console.log('All transformed API events:', apiEvents)
         
-        // Combine API events with default events
+        // Combine API events with default events and limit to first 10
         const combinedEvents = [...apiEvents, ...defaultEvents]
         console.log('Combined events (API + default):', combinedEvents)
-        setEvents(combinedEvents)
+        setEvents(combinedEvents.slice(0, 10))
       } else {
         console.log('No events in API response, using default events')
-        setEvents(defaultEvents)
+        setEvents(defaultEvents.slice(0, 10))
       }
     } catch (error) {
       console.error('Error fetching events:', error)
       console.log('Using fallback events data')
-      setEvents(defaultEvents)
+      setEvents(defaultEvents.slice(0, 10))
     } finally {
       setLoading(false)
     }
@@ -147,7 +149,7 @@ const EventsSection = () => {
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <a href="#" className="view-all-link" onClick={(e) => {
           e.preventDefault()
-          alert(`Viewing all ${events.length} events:\n\n${events.map(e => `• ${e.title} - ${e.location} - ${e.date}`).join('\n')}`)
+          navigate('/events')
         }}>View all →</a>
         </div>
       </div>

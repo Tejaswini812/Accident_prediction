@@ -3,11 +3,19 @@ import { useAuth } from '../contexts/AuthContext'
 import AuthModal from './AuthModal'
 import { submitProperty } from '../services/formSubmissionService'
 
+// Error display component
+const ErrorMessage = ({ error }) => {
+  if (!error) return null
+  return <div className="error-message" style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.25rem' }}>{error}</div>
+}
+
 const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
   const [currentStep, setCurrentStep] = useState('property-name')
   const [formData, setFormData] = useState({})
   const [uploadedImages, setUploadedImages] = useState([])
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [errors, setErrors] = useState({})
   const { user, isAuthenticated } = useAuth()
 
   // Load saved form data on component mount
@@ -26,6 +34,29 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
     localStorage.setItem('savedForms', JSON.stringify(savedForms))
   }, [formData, uploadedImages])
 
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Cleanup file URLs to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      uploadedImages.forEach(image => {
+        if (image.url && image.url.startsWith('blob:')) {
+          URL.revokeObjectURL(image.url)
+        }
+      })
+    }
+  }, [uploadedImages])
+
   const handleStepClick = (step) => {
     setCurrentStep(step)
   }
@@ -35,6 +66,16 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
       ...prev,
       [step]: data
     }))
+  }
+
+  const resetForm = () => {
+    setFormData({})
+    setUploadedImages([])
+    setCurrentStep('property-name')
+    // Clear localStorage
+    const savedForms = JSON.parse(localStorage.getItem('savedForms') || '{}')
+    delete savedForms.property
+    localStorage.setItem('savedForms', JSON.stringify(savedForms))
   }
 
   const handleImageUpload = (event) => {
@@ -48,30 +89,85 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
     setUploadedImages(prev => [...prev, ...newImages])
   }
 
-  const validateCurrentStep = () => {
-    switch (currentStep) {
+  const validateStep = (stepId) => {
+    const newErrors = { ...errors }
+    let isValid = true
+
+    switch (stepId) {
       case 'property-name':
-        return formData['property-name']?.name && formData['property-name']?.type
+        if (!formData['property-name']?.name) {
+          newErrors['property-name'] = 'Property name is required'
+          isValid = false
+        } else if (!formData['property-name']?.type) {
+          newErrors['property-name'] = 'Property type is required'
+          isValid = false
+        } else {
+          delete newErrors['property-name']
+        }
+        break
       case 'room-types':
-        return formData['room-types'] && formData['room-types'].length > 0
+        if (!formData['room-types'] || formData['room-types'].length === 0) {
+          newErrors['room-types'] = 'At least one room type is required'
+          isValid = false
+        } else {
+          delete newErrors['room-types']
+        }
+        break
       case 'room-pictures':
-        return uploadedImages.length > 0
+        if (uploadedImages.length === 0) {
+          newErrors['room-pictures'] = 'At least one image is required'
+          isValid = false
+        } else {
+          delete newErrors['room-pictures']
+        }
+        break
       case 'pricing-range':
-        return formData['pricing-range']?.basePrice
+        if (!formData['pricing-range']?.basePrice) {
+          newErrors['pricing-range'] = 'Base price is required'
+          isValid = false
+        } else {
+          delete newErrors['pricing-range']
+        }
+        break
       case 'location':
-        return formData['location']?.address && formData['location']?.city
+        if (!formData['location']?.address) {
+          newErrors['location'] = 'Address is required'
+          isValid = false
+        } else if (!formData['location']?.city) {
+          newErrors['location'] = 'City is required'
+          isValid = false
+        } else {
+          delete newErrors['location']
+        }
+        break
       case 'contact-details':
-        return formData['contact-details']?.phone && formData['contact-details']?.email
+        if (!formData['contact-details']?.phone) {
+          newErrors['contact-details'] = 'Phone number is required'
+          isValid = false
+        } else if (!formData['contact-details']?.email) {
+          newErrors['contact-details'] = 'Email is required'
+          isValid = false
+        } else {
+          delete newErrors['contact-details']
+        }
+        break
       case 'other-rules':
-        return true // Optional step
+        delete newErrors['other-rules'] // Optional step
+        break
       default:
-        return true
+        break
     }
+
+    setErrors(newErrors)
+    return isValid
+  }
+
+  const validateCurrentStep = () => {
+    return validateStep(currentStep)
   }
 
   const handleNext = () => {
     if (!validateCurrentStep()) {
-      alert('Please fill in all required fields before proceeding.')
       return
     }
     
@@ -83,18 +179,16 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
 
   const handleSubmit = () => {
     // Validate all steps
-    const isFormValid = steps.every(step => {
-      if (step.id === 'other-rules') return true // Optional step
-      return validateCurrentStep()
+    let isFormValid = true
+    steps.forEach(step => {
+      if (step.id !== 'other-rules') {
+        if (!validateStep(step.id)) {
+          isFormValid = false
+        }
+      }
     })
 
     if (!isFormValid) {
-      alert('Please fill in all required fields before submitting.')
-      return
-    }
-
-    if (uploadedImages.length === 0) {
-      alert('Please upload at least one image of your property.')
       return
     }
 
@@ -119,37 +213,42 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
 
       // Debug: Log the form data structure
       console.log('Form data structure:', formData)
+      console.log('Uploaded images:', uploadedImages)
       
       // Transform form data to match backend schema
       const propertyData = {
         title: formData['property-name']?.name || formData.title || 'Property',
         description: formData['property-name']?.description || formData.description || 'Property description',
-        price: formData['pricing-range']?.basePrice || formData['pricing-range']?.minPrice || formData.price || 0,
+        price: parseInt(formData['pricing-range']?.basePrice || formData['pricing-range']?.minPrice || formData.price || 0),
         location: formData['location']?.address || formData.location || 'Location',
         propertyType: formData['property-name']?.type || formData.propertyType || 'apartment',
-        bedrooms: formData['room-types']?.[0]?.count || formData.bedrooms || 0,
-        bathrooms: formData['room-types']?.[0]?.count || formData.bathrooms || 0,
-        area: formData['room-types']?.[0]?.size || formData.area || 0,
+        bedrooms: parseInt(formData['room-types']?.[0]?.count || formData.bedrooms || 0),
+        bathrooms: parseInt(formData['room-types']?.[1]?.count || formData.bathrooms || 0),
+        area: parseInt(formData['room-types']?.[0]?.size || formData.area || 0),
         amenities: formData['other-rules']?.amenities || formData.amenities || '',
-        contactInfo: formData['contact-details']?.phone || formData.contactInfo || ''
+        contactInfo: formData['contact-details']?.phone || formData['contact-details']?.email || formData.contactInfo || 'Contact information not provided'
       }
       
       console.log('Transformed property data:', propertyData)
+      console.log('API Base URL:', process.env.REACT_APP_API_URL || 'http://localhost:5000/api')
 
       // Submit to backend
       const result = await submitProperty(propertyData, uploadedImages, token)
       
-      // Clear saved form data
-      const savedForms = JSON.parse(localStorage.getItem('savedForms') || '{}')
-      delete savedForms.property
-      localStorage.setItem('savedForms', JSON.stringify(savedForms))
-
       console.log('Property submitted to MongoDB:', result)
       alert('Property listed successfully and saved to database!')
+      
+      // Reset form and close
+      resetForm()
       onClose()
     } catch (error) {
       console.error('Error submitting property:', error)
-      alert('Failed to submit property. Please try again.')
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+      alert(`Failed to submit property: ${error.message}. Please check the console for more details.`)
     }
   }
 
@@ -197,6 +296,262 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
       </div>
       
       <div className="step-content">
+        {/* Mobile: Show all steps at once, Desktop: Show current step */}
+        {isMobile ? (
+          // Mobile: Show all steps in one scrollable form
+          <div className="mobile-all-steps">
+            <div className="form-header-mobile">
+              <h2>Host a Property</h2>
+            </div>
+            {/* Property Name & Basic Info */}
+            <div className="step-form">
+              <h3>Property Name & Basic Info</h3>
+              <div className="form-group">
+                <label>Property Name *</label>
+                <input 
+                  type="text" 
+                  placeholder="Enter property name"
+                  value={formData['property-name']?.name || ''}
+                  onChange={(e) => handleFormDataChange('property-name', { ...formData['property-name'], name: e.target.value })}
+                />
+                <ErrorMessage error={errors['property-name']} />
+              </div>
+              <div className="form-group">
+                <label>Property Type *</label>
+                <select 
+                  value={formData['property-name']?.type || ''}
+                  onChange={(e) => handleFormDataChange('property-name', { ...formData['property-name'], type: e.target.value })}
+                >
+                  <option value="">Select Property Type</option>
+                  <option value="apartment">Apartment</option>
+                  <option value="house">House</option>
+                  <option value="villa">Villa</option>
+                  <option value="studio">Studio</option>
+                  <option value="penthouse">Penthouse</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  placeholder="Describe your property..."
+                  value={formData['property-name']?.description || ''}
+                  onChange={(e) => handleFormDataChange('property-name', { ...formData['property-name'], description: e.target.value })}
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Property Photos */}
+            <div className="step-form">
+              <h3>Property Photos</h3>
+              <div className="form-group">
+                <label>Upload Images *</label>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleImageUpload}
+                  style={{ marginBottom: '1rem' }}
+                />
+                {uploadedImages.length > 0 && (
+                  <div className="image-preview">
+                    <p>Uploaded Images ({uploadedImages.length}):</p>
+                    <div className="preview-grid">
+                      {uploadedImages.map((image, index) => (
+                        <div key={image.id} className="preview-item">
+                          <img src={image.preview} alt={`Preview ${index + 1}`} />
+                          <button 
+                            type="button" 
+                            onClick={() => setUploadedImages(prev => prev.filter(img => img.id !== image.id))}
+                            className="remove-image"
+                          >
+                            <i className="fas fa-times"></i>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Pricing Range */}
+            <div className="step-form">
+              <h3>Pricing Range</h3>
+              <div className="form-group">
+                <label>Base Price (₹) *</label>
+                <input 
+                  type="number" 
+                  placeholder="Enter base price"
+                  value={formData['pricing-range']?.basePrice || ''}
+                  onChange={(e) => handleFormDataChange('pricing-range', { ...formData['pricing-range'], basePrice: e.target.value })}
+                />
+                <ErrorMessage error={errors['pricing-range']} />
+              </div>
+              <div className="form-group">
+                <label>Minimum Price (₹)</label>
+                <input 
+                  type="number" 
+                  placeholder="Enter minimum price"
+                  value={formData['pricing-range']?.minPrice || ''}
+                  onChange={(e) => handleFormDataChange('pricing-range', { ...formData['pricing-range'], minPrice: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Room Types */}
+            <div className="step-form">
+              <h3>Room Details</h3>
+              <div className="form-group">
+                <label>Number of Bedrooms *</label>
+                <input 
+                  type="number" 
+                  placeholder="Enter number of bedrooms"
+                  value={formData['room-types']?.[0]?.count || ''}
+                  onChange={(e) => {
+                    const roomTypes = [...(formData['room-types'] || [{ type: 'bedroom', count: 0, occupancy: 2, size: 0 }])]
+                    roomTypes[0] = { ...roomTypes[0], count: parseInt(e.target.value) || 0 }
+                    handleFormDataChange('room-types', roomTypes)
+                  }}
+                />
+              </div>
+              <div className="form-group">
+                <label>Number of Bathrooms *</label>
+                <input 
+                  type="number" 
+                  placeholder="Enter number of bathrooms"
+                  value={formData['room-types']?.[1]?.count || ''}
+                  onChange={(e) => {
+                    const roomTypes = [...(formData['room-types'] || [{ type: 'bedroom', count: 0, occupancy: 2, size: 0 }, { type: 'bathroom', count: 0, occupancy: 1, size: 0 }])]
+                    roomTypes[1] = { ...roomTypes[1], count: parseInt(e.target.value) || 0 }
+                    handleFormDataChange('room-types', roomTypes)
+                  }}
+                />
+              </div>
+              <div className="form-group">
+                <label>Property Size (sq ft)</label>
+                <input 
+                  type="number" 
+                  placeholder="Enter property size"
+                  value={formData['room-types']?.[0]?.size || ''}
+                  onChange={(e) => {
+                    const roomTypes = [...(formData['room-types'] || [{ type: 'bedroom', count: 0, occupancy: 2, size: 0 }])]
+                    roomTypes[0] = { ...roomTypes[0], size: parseInt(e.target.value) || 0 }
+                    handleFormDataChange('room-types', roomTypes)
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="step-form">
+              <h3>Location</h3>
+              <div className="form-group">
+                <label>Address *</label>
+                <input 
+                  type="text" 
+                  placeholder="Enter property address"
+                  value={formData['location']?.address || ''}
+                  onChange={(e) => handleFormDataChange('location', { ...formData['location'], address: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>City *</label>
+                <input 
+                  type="text" 
+                  placeholder="Enter city"
+                  value={formData['location']?.city || ''}
+                  onChange={(e) => handleFormDataChange('location', { ...formData['location'], city: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>State *</label>
+                <input 
+                  type="text" 
+                  placeholder="Enter state"
+                  value={formData['location']?.state || ''}
+                  onChange={(e) => handleFormDataChange('location', { ...formData['location'], state: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Contact Details */}
+            <div className="step-form">
+              <h3>Contact Details</h3>
+              <div className="form-group">
+                <label>Phone Number *</label>
+                <input 
+                  type="tel" 
+                  placeholder="Enter phone number"
+                  value={formData['contact-details']?.phone || ''}
+                  onChange={(e) => handleFormDataChange('contact-details', { ...formData['contact-details'], phone: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input 
+                  type="email" 
+                  placeholder="Enter email address"
+                  value={formData['contact-details']?.email || ''}
+                  onChange={(e) => handleFormDataChange('contact-details', { ...formData['contact-details'], email: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Other Rules */}
+            <div className="step-form">
+              <h3>Additional Information</h3>
+              <div className="form-group">
+                <label>Amenities</label>
+                <textarea 
+                  placeholder="List amenities (WiFi, AC, Parking, etc.)"
+                  value={formData['other-rules']?.amenities || ''}
+                  onChange={(e) => handleFormDataChange('other-rules', { ...formData['other-rules'], amenities: e.target.value })}
+                  rows="3"
+                />
+              </div>
+              <div className="form-group">
+                <label>House Rules</label>
+                <textarea 
+                  placeholder="List any house rules or restrictions"
+                  value={formData['other-rules']?.rules || ''}
+                  onChange={(e) => handleFormDataChange('other-rules', { ...formData['other-rules'], rules: e.target.value })}
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="form-actions">
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                onClick={onClose}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.875rem',
+                  minWidth: '80px'
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                onClick={handleSubmit}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.875rem',
+                  minWidth: '100px'
+                }}
+              >
+                Submit Property
+              </button>
+            </div>
+          </div>
+        ) : (
+          // Desktop: Show current step only
+          <React.Fragment>
         {currentStep === 'property-name' && (
           <div className="step-form">
             <h3>Property Name & Basic Info</h3>
@@ -208,6 +563,7 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
                 value={formData['property-name']?.name || ''}
                 onChange={(e) => handleFormDataChange('property-name', { ...formData['property-name'], name: e.target.value })}
               />
+              <ErrorMessage error={errors['property-name']} />
             </div>
             <div className="form-group">
               <label>Property Type *</label>
@@ -238,6 +594,7 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
           <div className="step-form">
             <h3>Room Types & Details</h3>
             <div className="room-types-list">
+              <ErrorMessage error={errors['room-types']} />
               {(formData['room-types'] || []).map((room, index) => (
                 <div key={index} className="room-type-item">
                   <div className="form-row">
@@ -375,6 +732,7 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
                   value={formData['pricing-range']?.basePrice || ''}
                   onChange={(e) => handleFormDataChange('pricing-range', { ...formData['pricing-range'], basePrice: e.target.value })}
                 />
+                <ErrorMessage error={errors['pricing-range']} />
               </div>
               <div className="form-row">
                 <div className="form-group">
@@ -401,15 +759,48 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
                 <div className="seasonal-pricing">
                   <div className="season-item">
                     <label>Summer (Apr-Jun)</label>
-                    <input type="number" placeholder="1200" />
+                    <input 
+                      type="number" 
+                      placeholder="1200" 
+                      value={formData['pricing-range']?.seasonal?.summer || ''}
+                      onChange={(e) => handleFormDataChange('pricing-range', { 
+                        ...formData['pricing-range'], 
+                        seasonal: { 
+                          ...formData['pricing-range']?.seasonal, 
+                          summer: parseInt(e.target.value) || 0 
+                        } 
+                      })}
+                    />
                   </div>
                   <div className="season-item">
                     <label>Monsoon (Jul-Sep)</label>
-                    <input type="number" placeholder="800" />
+                    <input 
+                      type="number" 
+                      placeholder="800" 
+                      value={formData['pricing-range']?.seasonal?.monsoon || ''}
+                      onChange={(e) => handleFormDataChange('pricing-range', { 
+                        ...formData['pricing-range'], 
+                        seasonal: { 
+                          ...formData['pricing-range']?.seasonal, 
+                          monsoon: parseInt(e.target.value) || 0 
+                        } 
+                      })}
+                    />
                   </div>
                   <div className="season-item">
                     <label>Winter (Oct-Mar)</label>
-                    <input type="number" placeholder="1500" />
+                    <input 
+                      type="number" 
+                      placeholder="1500" 
+                      value={formData['pricing-range']?.seasonal?.winter || ''}
+                      onChange={(e) => handleFormDataChange('pricing-range', { 
+                        ...formData['pricing-range'], 
+                        seasonal: { 
+                          ...formData['pricing-range']?.seasonal, 
+                          winter: parseInt(e.target.value) || 0 
+                        } 
+                      })}
+                    />
                   </div>
                 </div>
               </div>
@@ -583,6 +974,8 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
             </div>
           </div>
         )}
+      </React.Fragment>
+        )}
       </div>
       
       {/* Navigation and Submit Buttons */}
@@ -593,6 +986,11 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
               type="button" 
               className="nav-btn submit-btn"
               onClick={handleSubmit}
+              style={{
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                minWidth: '120px'
+              }}
             >
               <i className="fas fa-check"></i>
               Submit Property

@@ -175,16 +175,23 @@
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
   width: 100%;
-  font-size: 0.95rem;
+  min-width: 120px;
+  font-size: 0.9rem;
   margin-top: 0.5rem;
   margin-bottom: 0;
   box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .buy-now-btn:hover {

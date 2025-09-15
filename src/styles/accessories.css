@@ -197,6 +197,18 @@
   .accessories-header {
     text-align: left !important;
     margin-left: 6% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    position: relative !important;
+  }
+  
+  .accessories-header > div {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    position: relative !important;
   }
   
   .accessories-title {
@@ -207,6 +219,32 @@
   
   .accessories-subtitle {
     display: none !important;
+  }
+  
+  .view-all-link {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #22c55e !important;
+    text-decoration: none !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    padding: 0.5rem 1rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .view-all-link:hover {
+    color: #16a34a !important;
+    transform: translateX(5px) !important;
   }
   
   .accessory-card {

@@ -9,9 +9,9 @@
 @import './styles/footer.css';
 @import './styles/chatbot.css';
 @import './styles/promotional.css';
+@import './styles/html-reference.css';
 @import './styles/dashboard.css';
 @import './styles/host-listings.css';
-@import './styles/html-reference.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

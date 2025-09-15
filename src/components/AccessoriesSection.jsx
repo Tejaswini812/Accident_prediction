@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const AccessoriesSection = () => {
+  const navigate = useNavigate()
   const [accessories, setAccessories] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -42,11 +44,11 @@ const AccessoriesSection = () => {
         image: product.images?.[0] || 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
       })) || []
       
-      // Combine both types
+      // Combine both types and limit to first 10
       const allAccessories = [...transformedAccessories, ...transformedProducts]
       
       if (allAccessories.length > 0) {
-        setAccessories(allAccessories)
+        setAccessories(allAccessories.slice(0, 10))
       } else {
         throw new Error('No data from API')
       }
@@ -166,7 +168,7 @@ const AccessoriesSection = () => {
           </div>
           <a href="#" className="view-all-link" onClick={(e) => {
             e.preventDefault()
-            alert(`Viewing all ${accessories.length} products:\n\n${accessories.map(a => `• ${a.name} - ${a.price}`).join('\n')}`)
+            navigate('/accessories')
           }}>View All →</a>
         </div>
       </div>

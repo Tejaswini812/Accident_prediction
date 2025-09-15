@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const CarResellingSection = () => {
+  const navigate = useNavigate()
   const [cars, setCars] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -71,18 +73,18 @@ const CarResellingSection = () => {
         
         console.log('All transformed API cars:', apiCars)
         
-        // Combine API cars with default cars
+        // Combine API cars with default cars and limit to first 10
         const combinedCars = [...apiCars, ...defaultCars]
         console.log('Combined cars (API + default):', combinedCars)
-        setCars(combinedCars)
+        setCars(combinedCars.slice(0, 10))
       } else {
         console.log('No cars in API response, using default cars')
-        setCars(defaultCars)
+        setCars(defaultCars.slice(0, 10))
       }
     } catch (error) {
       console.error('Error fetching cars:', error)
       console.log('Using fallback cars data')
-      setCars(defaultCars)
+      setCars(defaultCars.slice(0, 10))
     } finally {
       setLoading(false)
     }
@@ -137,7 +139,7 @@ const CarResellingSection = () => {
         <h2 style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.2rem', color: '#1e293b', margin: '0' }}>Zoom Car/ CAR Resale EXPO</h2>
         <a href="#" className="view-all-link" onClick={(e) => {
           e.preventDefault()
-          alert(`Viewing all ${cars.length} cars:\n\n${cars.map(c => `• ${c.name} - ${c.year} - ${c.price}`).join('\n')}`)
+          navigate('/cars')
         }}>View All →</a>
       </div>
       <div className="cars-section">

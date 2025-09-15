@@ -5,6 +5,12 @@ import ErrorBoundary from './components/ErrorBoundary'
 import HomePage from './pages/HomePage'
 import Dashboard from './pages/Dashboard'
 import Signup from './pages/Signup'
+import HotelsListingPage from './pages/HotelsListingPage'
+import EventsListingPage from './pages/EventsListingPage'
+import PropertiesListingPage from './pages/PropertiesListingPage'
+import CarsListingPage from './pages/CarsListingPage'
+import AccessoriesListingPage from './pages/AccessoriesListingPage'
+import PackagesListingPage from './pages/PackagesListingPage'
 
 function App() {
   return (
@@ -16,6 +22,12 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/hotels" element={<HotelsListingPage />} />
+              <Route path="/events" element={<EventsListingPage />} />
+              <Route path="/properties" element={<PropertiesListingPage />} />
+              <Route path="/cars" element={<CarsListingPage />} />
+              <Route path="/accessories" element={<AccessoriesListingPage />} />
+              <Route path="/packages" element={<PackagesListingPage />} />
             </Routes>
           </div>
         </Router>
