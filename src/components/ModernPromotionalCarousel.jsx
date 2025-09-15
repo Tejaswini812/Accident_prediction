@@ -38,6 +38,24 @@ const ModernPromotionalCarousel = () => {
       features: ["Beautiful Views", "Photo Spots", "Refreshments"],
       image: "/image3.png",
       description: "Discover breathtaking landscapes on this scenic journey"
+    },
+    {
+      id: 4,
+      title: "Promotional Banner 4",
+      subtitle: "Special Offer",
+      price: "Exclusive Package",
+      features: ["Special Features", "Limited Time", "Premium Experience"],
+      image: "/image4.png",
+      description: "Discover our latest promotional offer"
+    },
+    {
+      id: 5,
+      title: "Promotional Banner 5",
+      subtitle: "New Experience",
+      price: "Featured Package",
+      features: ["New Features", "Exclusive Access", "Premium Service"],
+      image: "/image5.png",
+      description: "Experience our newest promotional package"
     }
   ]
 

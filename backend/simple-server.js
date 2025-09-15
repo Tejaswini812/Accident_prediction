@@ -256,7 +256,7 @@ app.get('/api/hotels', (req, res) => {
       location: "Coorg",
       type: "Resort",
       price: "₹3500/night",
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop"
+      image: "https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
     },
     {
       id: 4,
@@ -264,7 +264,7 @@ app.get('/api/hotels', (req, res) => {
       location: "Mysore",
       type: "Palace",
       price: "₹4500/night",
-      image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&h=300&fit=crop"
+      image: "https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
     },
     {
       id: 5,
@@ -272,7 +272,7 @@ app.get('/api/hotels', (req, res) => {
       location: "Kerala",
       type: "Villa",
       price: "₹2800/night",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
+      image: "https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop"
     }
   ]
   res.json({ data: hotels })

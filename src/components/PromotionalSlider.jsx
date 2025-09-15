@@ -7,7 +7,9 @@ const PromotionalSlider = () => {
   const slides = [
     { id: 1, image: '/image1.png', alt: 'Promotional Banner 1' },
     { id: 2, image: '/image2.png', alt: 'Promotional Banner 2' },
-    { id: 3, image: '/image3.png', alt: 'Promotional Banner 3' }
+    { id: 3, image: '/image3.png', alt: 'Promotional Banner 3' },
+    { id: 4, image: '/image4.png', alt: 'Promotional Banner 4' },
+    { id: 5, image: '/image5.png', alt: 'Promotional Banner 5' },
   ]
 
   useEffect(() => {

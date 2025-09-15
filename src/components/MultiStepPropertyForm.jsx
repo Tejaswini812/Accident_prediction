@@ -294,6 +294,7 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
           </div>
         ))}
       </div>
+      {/* Removed sidebar buttons as per requirement */}
       
       <div className="step-content">
         {/* Mobile: Show all steps at once, Desktop: Show current step */}
@@ -978,24 +979,10 @@ const MultiStepPropertyForm = ({ onClose, onAuthRequired }) => {
         )}
       </div>
       
+      
       {/* Navigation and Submit Buttons */}
       <div className="form-navigation">
         <div className="nav-buttons">
-          {currentStep === 'other-rules' && (
-            <button 
-              type="button" 
-              className="nav-btn submit-btn"
-              onClick={handleSubmit}
-              style={{
-                padding: '0.5rem 1rem',
-                fontSize: '0.875rem',
-                minWidth: '120px'
-              }}
-            >
-              <i className="fas fa-check"></i>
-              Submit Property
-            </button>
-          )}
         </div>
         
         <div className="form-progress">

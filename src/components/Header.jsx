@@ -22,6 +22,10 @@ const Header = () => {
     navigate('/dashboard')
   }
 
+  const handleBookLunch = () => {
+    window.open('https://startupvillagecounty.in/discovery-village-trails', '_blank')
+  }
+
   return (
     <header className="header" style={{position: 'relative'}}>
       <div className="header-top">
@@ -42,7 +46,7 @@ const Header = () => {
       </div>
       <p className="club-tagline-left">Innovation • Community • Growth</p>
       <div className="nav-buttons">
-        <button className="nav-btn">Book a Lunch</button>
+        <button className="nav-btn" onClick={handleBookLunch}>Book a Lunch</button>
         <button className="nav-btn" onClick={scrollToStays}>Find a Stay</button>
         <button className="nav-btn" onClick={handleHostProperty}>Host a Property</button>
         <button className="nav-btn" onClick={handleLaunchEvent}>Launch an Event</button>

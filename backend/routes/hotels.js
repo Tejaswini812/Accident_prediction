@@ -123,7 +123,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
     }
     
     // Use uploaded image if available, otherwise use default
-    const hotelImage = imagePaths[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+    const hotelImage = imagePaths[0] || 'https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop'
     const hotelDescription = description || 'Property description'
     const hotelAmenities = amenities ? (Array.isArray(amenities) ? amenities : [amenities]) : []
     
@@ -213,7 +213,7 @@ router.post('/json', async (req, res) => {
         hotelPrice = '1000'
       }
     }
-    const hotelImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+    const hotelImage = 'https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop'
     const hotelDescription = description || 'Property description'
     const hotelAmenities = amenities ? (Array.isArray(amenities) ? amenities : [amenities]) : []
     

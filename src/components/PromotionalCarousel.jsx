@@ -15,6 +15,14 @@ const PromotionalCarousel = () => {
     {
       src: '/image3.png',
       alt: 'Explore Discovery Village Trails'
+    },
+    {
+      src: '/image4.png',
+      alt: 'Promotional Banner 4'
+    },
+    {
+      src: '/image5.png',
+      alt: 'Promotional Banner 5'
     }
   ]
 

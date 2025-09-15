@@ -716,6 +716,47 @@ const MultiStepPackageForm = ({ onClose, onAuthRequired }) => {
                 )}
               </div>
               
+              {/* Laptop view only - Additional action buttons */}
+              {!isMobile && (
+                <div className="form-action-buttons">
+                  <button 
+                    type="button" 
+                    className="action-btn add-new-btn"
+                    onClick={() => {
+                      // Duplicate form functionality
+                      const newFormData = { ...formData }
+                      const newUploadedImages = [...uploadedImages]
+                      setFormData(newFormData)
+                      setUploadedImages(newUploadedImages)
+                    }}
+                  >
+                    <i className="fas fa-plus"></i>
+                    Add New Package
+                  </button>
+                  
+                  <button 
+                    type="button" 
+                    className="action-btn verify-btn"
+                    onClick={() => {
+                      // Get verify functionality
+                      console.log('Get verify clicked')
+                    }}
+                  >
+                    <i className="fas fa-check-circle"></i>
+                    Get Verify
+                  </button>
+                  
+                  <button 
+                    type="button" 
+                    className="action-btn submit-main-btn"
+                    onClick={handleSubmit}
+                  >
+                    <i className="fas fa-paper-plane"></i>
+                    Submit
+                  </button>
+                </div>
+              )}
+              
               <div className="form-progress">
                 <span>Step {steps.findIndex(step => step.id === currentStep) + 1} of {steps.length}</span>
               </div>

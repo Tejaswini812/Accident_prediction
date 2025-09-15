@@ -95,7 +95,7 @@ const seedData = async () => {
         bedrooms: 3,
         bathrooms: 2,
         amenities: ['Swimming Pool', 'Garden', 'Parking', 'Security'],
-        images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'],
+        images: ['https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop'],
         isApproved: true,
         contactInfo: {
           phone: '9876543210',
@@ -118,7 +118,7 @@ const seedData = async () => {
         bedrooms: 2,
         bathrooms: 2,
         amenities: ['Lift', 'Parking', 'Security', 'Gym'],
-        images: ['https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'],
+        images: ['https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop'],
         isApproved: true,
         contactInfo: {
           phone: '9876543211',
@@ -148,7 +148,7 @@ const seedData = async () => {
         },
         price: 1500,
         capacity: 20,
-        images: ['https://images.unsplash.com/photo-1506905925346-14b1e3dba9b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'],
+        images: ['https://images.pexels.com/photos/2901209/pexels-photo-2901209.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop'],
         isApproved: true,
         contactInfo: {
           phone: '9876543210',
@@ -165,7 +165,7 @@ const seedData = async () => {
         name: 'Shakti Technology High Pressure Washer',
         price: '₹199',
         description: 'Best seller - High pressure car washer with accessories',
-        image: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        image: 'https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
         category: 'Automotive',
         seller: users[0]._id,
         stock: 10
@@ -174,7 +174,7 @@ const seedData = async () => {
         name: 'Shrida Naturals Lemon & Orange Air Freshener',
         price: '₹199',
         description: 'Fresh scent lasting up to 45 days, 60g net content',
-        image: 'https://images.unsplash.com/photo-1603314585442-ee3b3c16fbcf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        image: 'https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
         category: 'Automotive',
         seller: users[1]._id,
         stock: 25
@@ -203,7 +203,7 @@ const seedData = async () => {
           pincode: '560001'
         },
         features: ['AC', 'Power Steering', 'Music System', 'Central Locking'],
-        images: ['https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'],
+        images: ['https://images.pexels.com/photos/1707820/pexels-photo-1707820.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop'],
         description: 'Well maintained Honda City with single owner',
         isApproved: true,
         contactInfo: {
@@ -257,7 +257,7 @@ const seedData = async () => {
         inclusions: ['Accommodation', 'Meals', 'Transport', 'Guide'],
         exclusions: ['Personal expenses', 'Tips'],
         capacity: 15,
-        images: ['https://images.unsplash.com/photo-1506905925346-14b1e3dba9b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'],
+        images: ['https://images.pexels.com/photos/2901209/pexels-photo-2901209.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop'],
         isApproved: true,
         contactInfo: {
           phone: '9876543211',
@@ -275,7 +275,7 @@ const seedData = async () => {
         location: 'Goa',
         type: 'Cottage',
         price: 2500,
-        image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=500&h=300&fit=crop',
+        image: 'https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
         description: 'Beautiful beachside cottage with ocean view',
         amenities: ['WiFi', 'AC', 'Beach Access', 'Restaurant'],
         isApproved: true
@@ -285,7 +285,7 @@ const seedData = async () => {
         location: 'Goa',
         type: 'Tent',
         price: 1500,
-        image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
+        image: 'https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
         description: 'Luxury tent accommodation near the beach',
         amenities: ['WiFi', 'Beach Access', 'Campfire'],
         isApproved: true
@@ -295,7 +295,7 @@ const seedData = async () => {
         location: 'Coorg',
         type: 'Luxury Room',
         price: 5000,
-        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=300&fit=crop',
+        image: 'https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
         description: 'Premium mountain view room with all amenities',
         amenities: ['WiFi', 'AC', 'Mountain View', 'Spa', 'Restaurant'],
         isApproved: true

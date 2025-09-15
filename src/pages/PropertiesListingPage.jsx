@@ -37,7 +37,11 @@ const PropertiesListingPage = () => {
           price: property.price,
           rating: 4.5, // Default rating
           type: property.propertyType,
-          image: property.images?.[0] ? `http://localhost:5000/${property.images[0].replace(/\\/g, '/')}` : 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
+          image: property.images?.[0] ? 
+            (property.images[0].startsWith('http') ? 
+              property.images[0] : 
+              `http://localhost:5000/${property.images[0].replace(/\\/g, '/')}`) : 
+            'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
           area: property.area,
           description: property.description
         })) || []
@@ -50,7 +54,11 @@ const PropertiesListingPage = () => {
           price: landProperty.price,
           rating: 4.5, // Default rating
           type: landProperty.landType,
-          image: landProperty.images?.[0] ? `http://localhost:5000/${landProperty.images[0].replace(/\\/g, '/')}` : 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
+          image: landProperty.images?.[0] ? 
+            (landProperty.images[0].startsWith('http') ? 
+              landProperty.images[0] : 
+              `http://localhost:5000/${landProperty.images[0].replace(/\\/g, '/')}`) : 
+            'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1000&h=600&fit=crop',
           area: landProperty.area,
           description: landProperty.description
         })) || []
